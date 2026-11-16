@@ -7,7 +7,7 @@
     <title>@yield('title', 'Shanum Elektrik')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="min-h-screen font-sans antialiased" style="background-color:#F7F1E5;">
     @yield('content')
 </body>
 </html>
