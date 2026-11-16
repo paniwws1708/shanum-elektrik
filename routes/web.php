@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -49,21 +50,36 @@ Route::middleware('auth')->group(function () {
     // Generic dashboard (auto-redirect berdasarkan role)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // ---- ADMIN ROUTES ----
-    Route::middleware('role:admin')->prefix('admin')->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('admin.dashboard');
-        // Tambahkan route admin lainnya di sini (contoh: manajemen user)
+    // ================================================================
+    // PROFIL (semua role bisa akses)
+    // ================================================================
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [ProfileController::class, 'edit'])->name('edit');
+        Route::put('/', [ProfileController::class, 'update'])->name('update');
+        Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password');
     });
 
-    // ---- STAFF BARANG ROUTES ----
-    Route::middleware('role:staff_barang')->prefix('staff')->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'staffDashboard'])->name('staff.dashboard');
-        // Tambahkan route staff barang lainnya di sini
+    // ================================================================
+    // ADMIN ROUTES
+    // ================================================================
+    Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('dashboard');
+        // Route Manajemen User, Laporan, dsb — tambahkan di tahap berikutnya
     });
 
-    // ---- KASIR ROUTES ----
-    Route::middleware('role:kasir')->prefix('kasir')->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'kasirDashboard'])->name('kasir.dashboard');
-        // Tambahkan route kasir lainnya di sini
+    // ================================================================
+    // STAFF BARANG ROUTES
+    // ================================================================
+    Route::middleware('role:staff_barang')->prefix('staff')->name('staff.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'staffDashboard'])->name('dashboard');
+        // Route Data Barang, Stok, dsb — tambahkan di tahap berikutnya
+    });
+
+    // ================================================================
+    // KASIR ROUTES
+    // ================================================================
+    Route::middleware('role:kasir')->prefix('kasir')->name('kasir.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'kasirDashboard'])->name('dashboard');
+        // Route Transaksi, Riwayat, dsb — tambahkan di tahap berikutnya
     });
 });

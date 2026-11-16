@@ -2,47 +2,71 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     /**
-     * Show the generic dashboard, redirecting based on role.
+     * Auto-redirect ke dashboard sesuai role.
      */
     public function index()
     {
-        $user = Auth::user();
-
-        return match ($user->role) {
-            'admin' => redirect()->route('admin.dashboard'),
-            'staff_barang' => redirect()->route('staff.dashboard'),
-            'kasir' => redirect()->route('kasir.dashboard'),
-            default => abort(403),
+        return match (Auth::user()->role) {
+            'admin'       => redirect()->route('admin.dashboard'),
+            'staff_barang'=> redirect()->route('staff.dashboard'),
+            'kasir'       => redirect()->route('kasir.dashboard'),
+            default       => abort(403),
         };
     }
 
     /**
-     * Admin dashboard.
+     * Dashboard Admin.
      */
     public function adminDashboard()
     {
-        return view('dashboard.admin');
+        $stats = [
+            'total_users'        => User::count(),
+            'total_admin'        => User::where('role', 'admin')->count(),
+            'total_staff'        => User::where('role', 'staff_barang')->count(),
+            'total_kasir'        => User::where('role', 'kasir')->count(),
+            // Nanti diisi dari model produk/transaksi
+            'total_produk'       => 0,
+            'transaksi_hari_ini' => 0,
+            'pendapatan_hari_ini'=> 0,
+        ];
+
+        $recentUsers = User::latest()->take(5)->get();
+
+        return view('dashboard.admin', compact('stats', 'recentUsers'));
     }
 
     /**
-     * Staff Barang dashboard.
+     * Dashboard Staff Barang.
      */
     public function staffDashboard()
     {
-        return view('dashboard.staff');
+        $stats = [
+            'total_produk'  => 0,
+            'stok_menipis'  => 0,
+            'stok_habis'    => 0,
+        ];
+
+        return view('dashboard.staff', compact('stats'));
     }
 
     /**
-     * Kasir dashboard.
+     * Dashboard Kasir.
      */
     public function kasirDashboard()
     {
-        return view('dashboard.kasir');
+        $stats = [
+            'transaksi_hari_ini'  => 0,
+            'pendapatan_hari_ini' => 0,
+            'item_terjual'        => 0,
+        ];
+
+        return view('dashboard.kasir', compact('stats'));
     }
 }
