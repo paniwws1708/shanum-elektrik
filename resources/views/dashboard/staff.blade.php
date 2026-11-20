@@ -87,14 +87,16 @@
     </div>
     <div class="p-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
         @php
-        $menus = [
-            ['icon'=>'M12 6v6m0 0v6m0-6h6m-6 0H6','label'=>'Tambah Barang','desc'=>'Input produk baru','bg'=>'#F7F1E5','hover'=>'#EDE5D4'],
-            ['icon'=>'M4 6h16M4 10h16M4 14h16M4 18h16','label'=>'Daftar Barang','desc'=>'Lihat semua produk','bg'=>'#ecfdf5','hover'=>'#d1fae5'],
-            ['icon'=>'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z','label'=>'Laporan Stok','desc'=>'Cetak laporan','bg'=>'#fffbeb','hover'=>'#fef3c7'],
-        ];
-        @endphp
+$menus = [
+    ['icon'=>'M12 6v6m0 0v6m0-6h6m-6 0H6','label'=>'Tambah Barang','desc'=>'Input produk baru','bg'=>'#F7F1E5','hover'=>'#EDE5D4',
+     'url'=> Route::has('inventaris.barang.create') ? route('inventaris.barang.create') : '#'],
+    ['icon'=>'M4 6h16M4 10h16M4 14h16M4 18h16','label'=>'Daftar Barang','desc'=>'Lihat semua produk','bg'=>'#ecfdf5','hover'=>'#d1fae5',
+     'url'=> Route::has('inventaris.barang.index') ? route('inventaris.barang.index') : '#'],
+    ['icon'=>'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z','label'=>'Laporan Stok','desc'=>'Cetak laporan','bg'=>'#fffbeb','hover'=>'#fef3c7'],
+];
+@endphp
         @foreach($menus as $menu)
-        <a href="#"
+        <a href="{{ $menu['url'] ?? '#' }}"
            class="flex items-center p-4 rounded-xl transition-all duration-150"
            style="background-color:{{ $menu['bg'] }};"
            onmouseover="this.style.backgroundColor='{{ $menu['hover'] }}';"

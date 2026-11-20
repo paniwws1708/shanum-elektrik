@@ -67,13 +67,33 @@ Route::middleware('auth')->group(function () {
         // Route Manajemen User, Laporan, dsb — tambahkan di tahap berikutnya
     });
 
-    // ================================================================
+        // ================================================================
     // STAFF BARANG ROUTES
     // ================================================================
     Route::middleware('role:staff_barang')->prefix('staff')->name('staff.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'staffDashboard'])->name('dashboard');
-        // Route Data Barang, Stok, dsb — tambahkan di tahap berikutnya
     });
+
+    // ================================================================
+    // INVENTARIS (admin & staff barang) - modul Manajemen Barang dan Stok
+    // ================================================================
+    Route::middleware('role:admin,staff_barang')
+        ->prefix('inventaris')
+        ->as('inventaris.')
+        ->group(function () {
+            // Barang CRUD
+            Route::resource('barang', App\Http\Controllers\Inventaris\BarangController::class);
+            // Kategori CRUD (tanpa show)
+            Route::resource('kategori', App\Http\Controllers\Inventaris\KategoriController::class)->except(['show']);
+            // Supplier CRUD (tanpa show)
+            Route::resource('supplier', App\Http\Controllers\Inventaris\SupplierController::class)->except(['show']);
+            // Barang Masuk
+            Route::get('barang-masuk', [App\Http\Controllers\Inventaris\BarangMasukController::class, 'index'])->name('barang_masuk.index');
+            Route::get('barang-masuk/create', [App\Http\Controllers\Inventaris\BarangMasukController::class, 'create'])->name('barang_masuk.create');
+            Route::post('barang-masuk', [App\Http\Controllers\Inventaris\BarangMasukController::class, 'store'])->name('barang_masuk.store');
+            // Riwayat Stok (read-only)
+            Route::get('stok-riwayat', [App\Http\Controllers\Inventaris\StokRiwayatController::class, 'index'])->name('stok_riwayat.index');
+        });
 
     // ================================================================
     // KASIR ROUTES

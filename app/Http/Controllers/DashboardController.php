@@ -48,9 +48,9 @@ class DashboardController extends Controller
     public function staffDashboard()
     {
         $stats = [
-            'total_produk'  => 0,
-            'stok_menipis'  => 0,
-            'stok_habis'    => 0,
+            'total_produk'   => \App\Models\Barang::count(),
+            'stok_menipis'   => \App\Models\Barang::stokMenipis()->count(),
+            'stok_habis'     => \App\Models\Barang::stokHabis()->count(),
         ];
 
         return view('dashboard.staff', compact('stats'));

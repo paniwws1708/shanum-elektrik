@@ -129,36 +129,75 @@
                 </a>
             @endif
 
-            {{-- ---- ADMIN & STAFF_BARANG ---- --}}
-            @if(auth()->user()->isAdmin() || auth()->user()->isStaffBarang())
-                <div class="pt-4 pb-1">
-                    <p class="px-3 text-xs font-semibold uppercase tracking-wider" style="color:#5a7398;">Inventaris</p>
-                </div>
+{{-- ---- ADMIN & STAFF_BARANG ---- --}}
+@if(auth()->user()->isAdmin() || auth()->user()->isStaffBarang())
+    <div class="pt-4 pb-1">
+        <p class="px-3 text-xs font-semibold uppercase tracking-wider"
+           style="color:#5a7398;">
+            Inventaris
+        </p>
+    </div>
 
-                <a href="#"
-                   class="group flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
-                   style="color:#c8d8ed;"
-                   onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
-                   onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';">
-                    <svg class="mr-3 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:#8a9bb5;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                    </svg>
-                    Data Barang
-                    <span class="ml-auto text-xs px-1.5 py-0.5 rounded font-medium" style="background-color:#1e3060; color:#8a9bb5;">Soon</span>
-                </a>
+    @php
+        $inventarisMenu = [
+            [
+                'label' => 'Data Barang',
+                'route' => 'inventaris.barang.index',
+                'active' => 'inventaris.barang.*'
+            ],
+            [
+                'label' => 'Kategori',
+                'route' => 'inventaris.kategori.index',
+                'active' => 'inventaris.kategori.*'
+            ],
+            [
+                'label' => 'Supplier',
+                'route' => 'inventaris.supplier.index',
+                'active' => 'inventaris.supplier.*'
+            ],
+            [
+                'label' => 'Barang Masuk',
+                'route' => 'inventaris.barang_masuk.index',
+                'active' => 'inventaris.barang_masuk.*'
+            ],
+            [
+                'label' => 'Riwayat Stok',
+                'route' => 'inventaris.stok_riwayat.index',
+                'active' => 'inventaris.stok_riwayat.*'
+            ],
+        ];
+    @endphp
 
-                <a href="#"
-                   class="group flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
-                   style="color:#c8d8ed;"
-                   onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
-                   onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';">
-                    <svg class="mr-3 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:#8a9bb5;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                    </svg>
-                    Stok & Kategori
-                    <span class="ml-auto text-xs px-1.5 py-0.5 rounded font-medium" style="background-color:#1e3060; color:#8a9bb5;">Soon</span>
-                </a>
-            @endif
+    @foreach($inventarisMenu as $menu)
+        @php($isActive = request()->routeIs($menu['active']))
+
+        <a href="{{ Route::has($menu['route']) ? route($menu['route']) : '#' }}"
+           class="group flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
+
+           @if($isActive)
+               style="background-color:#F7F1E5; color:#162447;"
+           @else
+               style="color:#c8d8ed;"
+               onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
+               onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';"
+           @endif>
+
+            <svg class="mr-3 h-5 w-5 shrink-0"
+                 fill="none"
+                 stroke="currentColor"
+                 viewBox="0 0 24 24"
+                 style="{{ $isActive ? 'color:#162447;' : 'color:#8a9bb5;' }}">
+
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+
+            {{ $menu['label'] }}
+        </a>
+    @endforeach
+@endif
 
             {{-- ---- ADMIN & KASIR ---- --}}
             @if(auth()->user()->isAdmin() || auth()->user()->isKasir())
