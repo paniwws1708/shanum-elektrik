@@ -217,28 +217,38 @@
                     <p class="px-3 text-xs font-semibold uppercase tracking-wider" style="color:#5a7398;">Penjualan</p>
                 </div>
 
-                <a href="#"
+                @php($isPosActive = request()->routeIs('kasir.pos') || request()->routeIs('kasir.store'))
+                <a href="{{ route('kasir.pos') }}"
                    class="group flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
-                   style="color:#c8d8ed;"
-                   onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
-                   onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';">
-                    <svg class="mr-3 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:#8a9bb5;">
+                   @if($isPosActive)
+                       style="background-color:#F7F1E5; color:#162447;"
+                   @else
+                       style="color:#c8d8ed;"
+                       onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
+                       onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';"
+                   @endif>
+                    <svg class="mr-3 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                         style="{{ $isPosActive ? 'color:#162447;' : 'color:#8a9bb5;' }}">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/>
                     </svg>
                     Transaksi Kasir
-                    <span class="ml-auto text-xs px-1.5 py-0.5 rounded font-medium" style="background-color:#1e3060; color:#8a9bb5;">Soon</span>
                 </a>
 
-                <a href="#"
+                @php($isRiwayatActive = request()->routeIs('kasir.riwayat') || request()->routeIs('kasir.show'))
+                <a href="{{ route('kasir.riwayat') }}"
                    class="group flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
-                   style="color:#c8d8ed;"
-                   onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
-                   onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';">
-                    <svg class="mr-3 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:#8a9bb5;">
+                   @if($isRiwayatActive)
+                       style="background-color:#F7F1E5; color:#162447;"
+                   @else
+                       style="color:#c8d8ed;"
+                       onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
+                       onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';"
+                   @endif>
+                    <svg class="mr-3 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                         style="{{ $isRiwayatActive ? 'color:#162447;' : 'color:#8a9bb5;' }}">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
                     Riwayat Penjualan
-                    <span class="ml-auto text-xs px-1.5 py-0.5 rounded font-medium" style="background-color:#1e3060; color:#8a9bb5;">Soon</span>
                 </a>
             @endif
 

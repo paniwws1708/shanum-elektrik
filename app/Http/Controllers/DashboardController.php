@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DetailTransaksi;
+use App\Models\Transaksi;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -57,14 +59,24 @@ class DashboardController extends Controller
     }
 
     /**
-     * Dashboard Kasir.
+     * Dashboard Kasir — tampilkan statistik hari ini dari data nyata.
      */
     public function kasirDashboard()
     {
+        $userId = Auth::id();
+        $hariIni = now()->toDateString();
+
+        // Transaksi milik kasir yang login, dibuat hari ini
+        $transaksiHariIni = Transaksi::where('user_id', $userId)
+            ->whereDate('created_at', $hariIni);
+
         $stats = [
-            'transaksi_hari_ini'  => 0,
-            'pendapatan_hari_ini' => 0,
-            'item_terjual'        => 0,
+            'transaksi_hari_ini'  => (clone $transaksiHariIni)->count(),
+            'pendapatan_hari_ini' => (clone $transaksiHariIni)->sum('total_harga'),
+            'item_terjual'        => DetailTransaksi::whereIn(
+                                        'transaksi_id',
+                                        (clone $transaksiHariIni)->pluck('id')
+                                     )->sum('jumlah'),
         ];
 
         return view('dashboard.kasir', compact('stats'));

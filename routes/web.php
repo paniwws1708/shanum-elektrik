@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\KasirController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -100,6 +101,11 @@ Route::middleware('auth')->group(function () {
     // ================================================================
     Route::middleware('role:kasir')->prefix('kasir')->name('kasir.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'kasirDashboard'])->name('dashboard');
-        // Route Transaksi, Riwayat, dsb — tambahkan di tahap berikutnya
+
+        // ── Modul Transaksi Kasir (POS) — Stevani ──
+        Route::get('/transaksi', [KasirController::class, 'pos'])->name('pos');
+        Route::post('/transaksi', [KasirController::class, 'store'])->name('store');
+        Route::get('/riwayat', [KasirController::class, 'riwayat'])->name('riwayat');
+        Route::get('/riwayat/{transaksi}', [KasirController::class, 'show'])->name('show');
     });
 });
