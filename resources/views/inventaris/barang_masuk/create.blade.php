@@ -114,7 +114,7 @@
             </div>
         </div>
 
-        <div class="flex justify-end gap-2 border-t pt-4">
+        <div class="flex justify-end gap-2 pt-4">
             <a href="{{ route('inventaris.barang_masuk.index') }}" class="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600">
                 Batal
             </a>

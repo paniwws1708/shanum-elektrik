@@ -182,17 +182,29 @@
                onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';"
            @endif>
 
-            <svg class="mr-3 h-5 w-5 shrink-0"
-                 fill="none"
-                 stroke="currentColor"
-                 viewBox="0 0 24 24"
-                 style="{{ $isActive ? 'color:#162447;' : 'color:#8a9bb5;' }}">
+            <span class="mr-3 flex h-5 w-5 shrink-0 items-center justify-center">
+    @switch($menu['label'])
+        @case('Data Barang')
+            <i data-lucide="package"></i>
+            @break
 
-                <path stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M4 6h16M4 12h16M4 18h16"/>
-            </svg>
+        @case('Kategori')
+            <i data-lucide="tags"></i>
+            @break
+
+        @case('Supplier')
+            <i data-lucide="truck"></i>
+            @break
+
+        @case('Barang Masuk')
+            <i data-lucide="package-plus"></i>
+            @break
+
+        @case('Riwayat Stok')
+            <i data-lucide="history"></i>
+            @break
+    @endswitch
+</span>
 
             {{ $menu['label'] }}
         </a>
@@ -329,5 +341,11 @@
     </div>
 
 </div>
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<script>
+    lucide.createIcons();
+</script>
 </body>
 </html>

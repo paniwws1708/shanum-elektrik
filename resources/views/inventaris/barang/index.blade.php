@@ -49,6 +49,7 @@
                         <th class="px-4 py-3 text-left">Nama Barang</th>
                         <th class="px-4 py-3 text-left">Kategori</th>
                         <th class="px-4 py-3 text-left">Lokasi Penyimpanan</th>
+                        <th class="px-4 py-3 text-right">Harga Modal</th>
                         <th class="px-4 py-3 text-right">Harga Jual</th>
                         <th class="px-4 py-3 text-center">Stok</th>
                         <th class="px-4 py-3 text-center">Aksi</th>
@@ -91,6 +92,10 @@
                             <td class="px-4 py-3 text-gray-600">
                                 {{ $barang->lokasi_penyimpanan ?: '-' }}
                             </td>
+
+                            <td class="whitespace-nowrap px-4 py-3 text-right text-gray-700">
+    Rp{{ number_format($barang->harga_modal, 0, ',', '.') }}
+</td>
 
                             <td class="whitespace-nowrap px-4 py-3 text-right text-gray-700">
                                 Rp{{ number_format($barang->harga_jual, 0, ',', '.') }}
@@ -138,7 +143,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-4 py-10 text-center text-gray-500">
+                            <td colspan="9" class="px-4 py-10 text-center text-gray-500">
                                 Belum ada data barang.
                             </td>
                         </tr>
