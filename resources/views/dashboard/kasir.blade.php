@@ -59,7 +59,7 @@
             </div>
             <span class="text-xs px-2 py-0.5 rounded-full font-medium" style="background-color:#ecfdf5; color:#059669;">Pendapatan</span>
         </div>
-        <p class="text-3xl font-bold" style="color:#059669;">Rp 0</p>
+        <p class="text-3xl font-bold" style="color:#059669;">Rp {{ number_format($stats['pendapatan_hari_ini'], 0, ',', '.') }}</p>
         <p class="text-xs mt-1" style="color:#8a9bb5;">Total Pendapatan</p>
     </div>
 
@@ -89,7 +89,7 @@
         </div>
         <h3 class="text-lg font-semibold mb-2" style="color:#162447;">Mulai Transaksi</h3>
         <p class="text-sm mb-6" style="color:#8a9bb5;">Klik tombol di bawah untuk membuka halaman kasir dan melayani pelanggan.</p>
-        <a href="#"
+        <a href="{{ route('kasir.pos') }}"
            class="inline-flex items-center px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-150 shadow-sm"
            style="background-color:#162447; color:#F7F1E5;"
            onmouseover="this.style.backgroundColor='#1e3060';"
