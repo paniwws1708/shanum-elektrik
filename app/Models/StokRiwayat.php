@@ -4,11 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class StokRiwayat extends Model
 {
     use HasFactory;
 
+    /**
+     * Kolom yang dapat diisi secara mass assignment.
+     */
     protected $fillable = [
         'barang_id',
         'user_id',
@@ -21,17 +26,26 @@ class StokRiwayat extends Model
         'referensi_id',
     ];
 
-    public function barang()
+    /**
+     * Relasi ke barang, termasuk barang yang sudah di-soft delete.
+     */
+    public function barang(): BelongsTo
     {
-        return $this->belongsTo(Barang::class);
+        return $this->belongsTo(Barang::class)->withTrashed();
     }
 
-    public function user()
+    /**
+     * Relasi ke pengguna yang melakukan perubahan stok.
+     */
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function referensi()
+    /**
+     * Relasi polymorphic ke sumber transaksi stok.
+     */
+    public function referensi(): MorphTo
     {
         return $this->morphTo();
     }
