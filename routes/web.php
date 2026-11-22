@@ -92,6 +92,17 @@ Route::middleware('auth')->group(function () {
             Route::get('barang-masuk', [App\Http\Controllers\Inventaris\BarangMasukController::class, 'index'])->name('barang_masuk.index');
             Route::get('barang-masuk/create', [App\Http\Controllers\Inventaris\BarangMasukController::class, 'create'])->name('barang_masuk.create');
             Route::post('barang-masuk', [App\Http\Controllers\Inventaris\BarangMasukController::class, 'store'])->name('barang_masuk.store');
+
+// Penyesuaian Stok
+Route::get('penyesuaian-stok', [App\Http\Controllers\Inventaris\PenyesuaianStokController::class, 'index'])
+    ->name('penyesuaian_stok.index');
+
+Route::get('penyesuaian-stok/create', [App\Http\Controllers\Inventaris\PenyesuaianStokController::class, 'create'])
+    ->name('penyesuaian_stok.create');
+
+Route::post('penyesuaian-stok', [App\Http\Controllers\Inventaris\PenyesuaianStokController::class, 'store'])
+    ->name('penyesuaian_stok.store');
+
             // Riwayat Stok (read-only)
             Route::get('stok-riwayat', [App\Http\Controllers\Inventaris\StokRiwayatController::class, 'index'])->name('stok_riwayat.index');
         });

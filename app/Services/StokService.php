@@ -88,6 +88,56 @@ class StokService
             $referensi
         );
     }
+    /**
+     * Menyesuaikan stok berdasarkan hasil penghitungan fisik.
+     */
+    public function setStokFisik(
+        int $barangId,
+        int $stokFisik,
+        int $userId,
+        ?string $keterangan = null
+    ): Barang {
+        if ($stokFisik < 0) {
+            throw new InvalidArgumentException(
+                'Stok fisik tidak boleh kurang dari 0.'
+            );
+        }
+
+        return DB::transaction(function () use (
+            $barangId,
+            $stokFisik,
+            $userId,
+            $keterangan
+        ) {
+            $barang = Barang::whereKey($barangId)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $stokSebelum = (int) $barang->stok;
+            $perubahan = $stokFisik - $stokSebelum;
+
+            // Tidak mencatat riwayat jika stok tidak berubah.
+            if ($perubahan === 0) {
+                return $barang;
+            }
+
+            $barang->stok = $stokFisik;
+            $barang->save();
+
+            $this->catatRiwayat(
+                $barang,
+                $userId,
+                'penyesuaian',
+                $perubahan,
+                $stokSebelum,
+                $keterangan,
+                null
+            );
+
+            return $barang;
+        });
+    }
+
 
     /**
      * Menerapkan perubahan stok dan mencatat riwayat.
