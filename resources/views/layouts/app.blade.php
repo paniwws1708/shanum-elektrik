@@ -221,7 +221,7 @@
             @break
 
             @case('Rusak & Retur')
-   <i data-lucide="history"></i>
+   <i data-lucide="package-minus"></i>
     @break
     @endswitch
 </span>
