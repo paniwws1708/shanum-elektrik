@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KasirController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\BarangRusakReturController;
 
 /*
 |--------------------------------------------------------------------------
@@ -120,3 +121,16 @@ Route::post('penyesuaian-stok', [App\Http\Controllers\Inventaris\PenyesuaianStok
         Route::get('/riwayat/{transaksi}', [KasirController::class, 'show'])->name('show');
     });
 });
+
+
+
+// Fitur barang rusak & retur. 'auth' = harus login dulu.
+// Pembatasan role (admin & staff_barang) ada di dalam controller.
+Route::middleware('auth')
+    ->prefix('barang-rusak-retur')   // URL: /barang-rusak-retur
+    ->name('rusak-retur.')           // nama route: rusak-retur.index, dst
+    ->group(function () {
+        Route::get('/', [BarangRusakReturController::class, 'index'])->name('index');
+        Route::get('/create', [BarangRusakReturController::class, 'create'])->name('create');
+        Route::post('/', [BarangRusakReturController::class, 'store'])->name('store');
+    });

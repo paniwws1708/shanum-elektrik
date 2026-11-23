@@ -172,6 +172,12 @@
                 'route' => 'inventaris.stok_riwayat.index',
                 'active' => 'inventaris.stok_riwayat.*'
             ],
+
+             [
+                'label' => 'Rusak & Retur',
+                'route' => 'rusak-retur.index',
+                'active' => 'rusak-retur.*'
+            ],
         ];
     @endphp
 
@@ -213,6 +219,10 @@
         @case('Riwayat Stok')
             <i data-lucide="history"></i>
             @break
+
+            @case('Rusak & Retur')
+   <i data-lucide="package-minus"></i>
+    @break
     @endswitch
 </span>
 
