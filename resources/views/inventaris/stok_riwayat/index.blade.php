@@ -8,24 +8,51 @@
 <div class="mb-5">
     <h2 class="text-xl font-bold" style="color:#162447;">Riwayat Perubahan Stok</h2>
     <p class="mt-1 text-sm text-gray-500">
-        Semua penambahan dan pengurangan stok yang tercatat oleh sistem.
+        Semua aktivitas perubahan stok barang, termasuk barang masuk, barang keluar, dan penyesuaian stok.
     </p>
 </div>
 
-<form method="GET" class="mb-4 flex gap-2 rounded-xl bg-white p-4 shadow-sm">
+
+<form method="GET"
+      class="mb-4 flex flex-wrap items-center gap-3 rounded-xl bg-white p-4 shadow-sm">
+
     <input
+        type="text"
         name="search"
-        value="{{ request('search') }}"
-        placeholder="Cari nama barang"
+        value="{{ $search }}"
+        placeholder="Cari nama atau kode barang"
         class="min-w-0 flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm"
     >
 
-    <button class="rounded-lg px-4 py-2 text-sm font-semibold text-white" style="background:#162447;">
+    <select
+        name="tipe"
+        class="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+    >
+        <option value="">Semua Jenis</option>
+        <option value="masuk" {{ $tipe === 'masuk' ? 'selected' : '' }}>
+            Barang Masuk
+        </option>
+        <option value="keluar" {{ $tipe === 'keluar' ? 'selected' : '' }}>
+            Barang Keluar
+        </option>
+        <option value="penyesuaian" {{ $tipe === 'penyesuaian' ? 'selected' : '' }}>
+            Penyesuaian
+        </option>
+    </select>
+
+    <button
+        type="submit"
+        class="rounded-lg px-4 py-2 text-sm font-semibold text-white"
+        style="background:#162447;"
+    >
         Cari
     </button>
 
-    @if(request('search'))
-        <a href="{{ route('inventaris.stok_riwayat.index') }}" class="rounded-lg border border-gray-300 px-4 py-2 text-sm">
+    @if($search || $tipe)
+        <a
+            href="{{ route('inventaris.stok_riwayat.index') }}"
+            class="rounded-lg border border-gray-300 px-4 py-2 text-sm"
+        >
             Reset
         </a>
     @endif

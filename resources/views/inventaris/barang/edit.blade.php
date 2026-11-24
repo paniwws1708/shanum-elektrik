@@ -5,6 +5,25 @@
 @section('page-title', 'Edit Barang')
 @section('breadcrumb', 'Inventaris / Barang / Edit')
 
+
+<style>
+    .foto-input::file-selector-button {
+        background-color: #F3F4F6;
+        color: #374151;
+        border: 1px solid #D1D5DB;
+        border-radius: 8px;
+        padding: 9px 16px;
+        margin-right: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .foto-input::file-selector-button:hover {
+        background-color: #E5E7EB;
+    }
+</style>
+
 @section('content')
     @if($errors->any())
         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
@@ -136,12 +155,12 @@
                 @endif
 
                 <input
-                    type="file"
-                    name="foto"
-                    id="foto"
-                    accept="image/*"
-                    class="w-full text-sm"
-                />
+    type="file"
+    name="foto"
+    id="foto"
+    accept="image/*"
+    class="foto-input w-full text-sm text-gray-700"
+/>
 
                 @error('foto')
                     <p class="text-red-600 text-sm mt-1">{{ $message }}</p>

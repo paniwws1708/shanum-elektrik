@@ -160,10 +160,23 @@
                 'route' => 'inventaris.barang_masuk.index',
                 'active' => 'inventaris.barang_masuk.*'
             ],
+
+[
+    'label' => 'Penyesuaian Stok',
+    'route' => 'inventaris.penyesuaian_stok.index',
+    'active' => 'inventaris.penyesuaian_stok.*'
+],
+
             [
                 'label' => 'Riwayat Stok',
                 'route' => 'inventaris.stok_riwayat.index',
                 'active' => 'inventaris.stok_riwayat.*'
+            ],
+
+             [
+                'label' => 'Rusak & Retur',
+                'route' => 'rusak-retur.index',
+                'active' => 'rusak-retur.*'
             ],
         ];
     @endphp
@@ -199,10 +212,17 @@
         @case('Barang Masuk')
             <i data-lucide="package-plus"></i>
             @break
+            @case('Penyesuaian Stok')
+    <i data-lucide="clipboard-pen-line"></i>
+    @break
 
         @case('Riwayat Stok')
             <i data-lucide="history"></i>
             @break
+
+            @case('Rusak & Retur')
+   <i data-lucide="package-minus"></i>
+    @break
     @endswitch
 </span>
 

@@ -13,127 +13,207 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Throwable;
 
 class BarangController extends Controller
 {
     /**
-     * Daftar barang dengan pencarian & filter.
+     * Menampilkan daftar barang.
      */
     public function index(Request $request): View
     {
         $query = Barang::with('kategori');
 
-        // pencarian nama / kode
-        if ($search = $request->query('search')) {
+        // Pencarian berdasarkan nama atau kode barang.
+        $search = trim((string) $request->query('search', ''));
+
+        if ($search !== '') {
             $query->cari($search);
         }
 
-        // filter kategori
-        if ($kategoriId = $request->query('kategori_id')) {
-            $query->where('kategori_id', $kategoriId);
+        // Filter berdasarkan kategori.
+        if ($request->filled('kategori_id')) {
+            $query->where('kategori_id', $request->query('kategori_id'));
         }
 
-        // filter status stok
-        if ($status = $request->query('status')) {
-            if ($status === 'menipis') {
-                $query->stokMenipis();
-            } elseif ($status === 'habis') {
-                $query->stokHabis();
-            } elseif ($status === 'aman') {
-                $query->whereColumn('stok', '>', 'stok_minimum');
-            }
+        // Filter berdasarkan kondisi stok.
+        $status = $request->query('status');
+
+        if ($status === 'menipis') {
+            $query->stokMenipis();
+        } elseif ($status === 'habis') {
+            $query->stokHabis();
+        } elseif ($status === 'aman') {
+            $query->whereColumn('stok', '>', 'stok_minimum');
+        } else {
+            $status = '';
         }
 
-        $barangs = $query->orderBy('nama_barang')
-                         ->paginate(15)
-                         ->withQueryString();
+        // Mengurutkan barang berdasarkan nama.
+        $barangs = $query
+            ->orderBy('nama_barang')
+            ->orderBy('id')
+            ->paginate(15)
+            ->withQueryString();
 
-        $kategoris = Kategori::all();
+        // Mengambil daftar kategori untuk filter.
+        $kategoris = Kategori::orderBy('nama')->get();
 
-        return view('inventaris.barang.index', compact('barangs', 'kategoris'));
+        return view('inventaris.barang.index', compact(
+            'barangs',
+            'kategoris'
+        ));
     }
 
     /**
-     * Form tambah barang.
+     * Menampilkan form tambah barang.
      */
     public function create(): View
     {
-        $kategoris = Kategori::all();
+        $kategoris = Kategori::orderBy('nama')->get();
 
         return view('inventaris.barang.create', compact('kategoris'));
     }
 
     /**
-     * Simpan barang baru (stok awal dicatat lewat StokService).
+     * Menyimpan barang baru dan mencatat stok awal.
      */
-    public function store(StoreBarangRequest $request, StokService $stokService): RedirectResponse
-    {
+    public function store(
+        StoreBarangRequest $request,
+        StokService $stokService
+    ): RedirectResponse {
         $data = $request->validated();
 
-        // stok_minimum kosong -> pakai default 10 (kolom tidak boleh NULL)
+        // Menggunakan nilai default jika stok minimum kosong.
         $data['stok_minimum'] = $data['stok_minimum'] ?? 10;
 
-        if ($request->hasFile('foto')) {
-            $data['foto'] = $request->file('foto')->store('barang', 'public');
+        $foto = null;
+
+        try {
+            // Menyimpan foto barang jika tersedia.
+            if ($request->hasFile('foto')) {
+                $foto = $request->file('foto')->store('barang', 'public');
+
+                if (!$foto) {
+                    throw new \RuntimeException('Foto barang gagal disimpan.');
+                }
+
+                $data['foto'] = $foto;
+            }
+
+            // Stok awal dicatat melalui StokService.
+            $stokAwal = (int) $data['stok'];
+            unset($data['stok']);
+
+            DB::transaction(function () use (
+                $data,
+                $stokAwal,
+                $stokService
+            ) {
+                $barang = Barang::create($data);
+
+                // Mencatat stok awal jika jumlahnya lebih dari nol.
+                if ($stokAwal > 0) {
+                    $stokService->tambahStok(
+                        $barang->id,
+                        $stokAwal,
+                        (int) auth()->id(),
+                        'Stok awal barang'
+                    );
+                }
+            });
+        } catch (Throwable $exception) {
+            // Menghapus foto jika proses penyimpanan gagal.
+            if ($foto) {
+                Storage::disk('public')->delete($foto);
+            }
+
+            throw $exception;
         }
 
-        // stok awal tidak disimpan langsung, dicatat lewat riwayat
-        $awalStok = (int) $data['stok'];
-        unset($data['stok']);
-
-        DB::transaction(function () use ($data, $awalStok, $stokService) {
-            $barang = Barang::create($data);
-
-            if ($awalStok > 0) {
-                $stokService->tambahStok($barang->id, $awalStok, auth()->id(), 'Stok awal barang');
-            }
-        });
-
-        return redirect()->route('inventaris.barang.index')
-                         ->with('success', 'Barang berhasil ditambahkan.');
+        return redirect()
+            ->route('inventaris.barang.index')
+            ->with('success', 'Barang berhasil ditambahkan.');
     }
 
     /**
-     * Form edit barang.
+     * Menampilkan form edit barang.
      */
     public function edit(Barang $barang): View
     {
-        $kategoris = Kategori::all();
+        $kategoris = Kategori::orderBy('nama')->get();
 
-        return view('inventaris.barang.edit', compact('barang', 'kategoris'));
+        return view('inventaris.barang.edit', compact(
+            'barang',
+            'kategoris'
+        ));
     }
 
     /**
-     * Update barang (tidak mengubah stok langsung).
+     * Memperbarui data barang tanpa mengubah stok.
      */
-    public function update(UpdateBarangRequest $request, Barang $barang): RedirectResponse
-    {
+    public function update(
+        UpdateBarangRequest $request,
+        Barang $barang
+    ): RedirectResponse {
         $data = $request->validated();
 
-        $data['stok_minimum'] = $data['stok_minimum'] ?? $barang->stok_minimum;
+        // Mempertahankan stok minimum lama jika input dikosongkan.
+        $data['stok_minimum'] = $data['stok_minimum']
+            ?? $barang->stok_minimum;
 
-        if ($request->hasFile('foto')) {
-            // hapus foto lama bila ada
-            if ($barang->foto && Storage::disk('public')->exists($barang->foto)) {
-                Storage::disk('public')->delete($barang->foto);
+        $fotoLama = $barang->foto;
+        $fotoBaru = null;
+
+        try {
+            // Menyimpan foto baru jika pengguna mengunggah foto.
+            if ($request->hasFile('foto')) {
+                $fotoBaru = $request->file('foto')
+                    ->store('barang', 'public');
+
+                if (!$fotoBaru) {
+                    throw new \RuntimeException('Foto barang gagal disimpan.');
+                }
+
+                $data['foto'] = $fotoBaru;
             }
-            $data['foto'] = $request->file('foto')->store('barang', 'public');
+
+            // Memperbarui data barang dalam transaksi database.
+            DB::transaction(function () use ($barang, $data) {
+                $barang->update($data);
+            });
+        } catch (Throwable $exception) {
+            // Menghapus foto baru jika proses update gagal.
+            if ($fotoBaru) {
+                Storage::disk('public')->delete($fotoBaru);
+            }
+
+            throw $exception;
         }
 
-        $barang->update($data);
+        // Menghapus foto lama setelah update berhasil.
+        if (
+            $fotoBaru &&
+            $fotoLama &&
+            Storage::disk('public')->exists($fotoLama)
+        ) {
+            Storage::disk('public')->delete($fotoLama);
+        }
 
-        return redirect()->route('inventaris.barang.index')
-                         ->with('success', 'Barang berhasil diperbarui.');
+        return redirect()
+            ->route('inventaris.barang.index')
+            ->with('success', 'Barang berhasil diperbarui.');
     }
 
     /**
-     * Hapus barang (soft delete, riwayat stok tetap aman).
+     * Menghapus barang menggunakan soft delete.
      */
     public function destroy(Barang $barang): RedirectResponse
     {
         $barang->delete();
 
-        return redirect()->route('inventaris.barang.index')
-                         ->with('success', 'Barang berhasil dihapus.');
+        return redirect()
+            ->route('inventaris.barang.index')
+            ->with('success', 'Barang berhasil dihapus.');
     }
 }

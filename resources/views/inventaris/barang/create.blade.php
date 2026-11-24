@@ -5,6 +5,25 @@
 @section('page-title', 'Tambah Barang')
 @section('breadcrumb', 'Inventaris / Barang / Tambah')
 
+
+<style>
+    .foto-input::file-selector-button {
+        background-color: #F3F4F6;
+        color: #374151;
+        border: 1px solid #D1D5DB;
+        border-radius: 8px;
+        padding: 9px 16px;
+        margin-right: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .foto-input::file-selector-button:hover {
+        background-color: #E5E7EB;
+    }
+</style>
+
 @section('content')
     @if($errors->any())
         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
@@ -96,58 +115,87 @@
                        style="border-color:#DDD3BE;" />
             </div>
 
-            {{-- Foto Barang --}}
-            <div class="col-span-1 md:col-span-2">
-                <label class="block text-sm font-medium mb-2" for="foto">
-                    Foto (opsional)
-                </label>
 
-                <input
-                    type="file"
-                    name="foto"
-                    id="foto"
-                    accept="image/*"
-                    class="w-full text-sm text-gray-700
-                           file:mr-4 file:rounded-lg
-                           file:border file:border-gray-300
-                           file:px-4 file:py-2.5
-                           file:bg-[#F3F4F6] file:text-gray-700
-                           file:font-medium file:cursor-pointer
-                           hover:file:bg-gray-200"
-                    @change="
-                        preview = $event.target.files.length
-                            ? URL.createObjectURL($event.target.files[0])
-                            : null
-                    "
-                />
 
-                <template x-if="preview">
-                    <img :src="preview"
-                         alt="Pratinjau Foto"
-                         class="mt-3 h-24 w-24 rounded-lg object-cover border"
-                         style="border-color:#EDE5D4;" />
-                </template>
-            </div>
+{{-- Foto Barang dan Tombol --}}
+<div style="grid-column: 1 / -1; width: 100%;">
 
-            {{-- Tombol --}}
-            <div class="col-span-1 md:col-span-2 flex justify-end gap-3 pt-5">
+    <label class="block text-sm font-medium mb-2" for="foto">
+        Foto (opsional)
+    </label>
 
-                <button
-                    type="submit"
-                    class="rounded-lg px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
-                    style="background-color:#162447;">
-                    Simpan
-                </button>
+    <input
+        type="file"
+        name="foto"
+        id="foto"
+        accept="image/*"
+        class="foto-input w-full text-sm text-gray-700"
+        @change="
+            preview = $event.target.files.length
+                ? URL.createObjectURL($event.target.files[0])
+                : null
+        "
+    />
 
-                <a
-                    href="{{ route('inventaris.barang.index') }}"
-                    class="rounded-lg border px-6 py-2.5 text-sm font-semibold transition hover:bg-gray-50"
-                    style="background-color:#FFFFFF; color:#162447; border-color:#d8cbb5;">
-                    Batal
-                </a>
+    {{-- Preview Foto --}}
+    <template x-if="preview">
+        <img
+            :src="preview"
+            alt="Pratinjau Foto"
+            class="mt-3 h-24 w-24 rounded-lg object-cover border"
+            style="border-color:#EDE5D4;"
+        />
+    </template>
 
-            </div>
+    {{-- Tombol --}}
+    <div style="
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        width: 100%;
+        margin-top: 20px;
+        gap: 12px;
+    ">
 
-        </form>
+        <button
+            type="submit"
+            style="
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 94px;
+                height: 42px;
+                flex: 0 0 94px;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 600;
+                color: white;
+                background-color: #162447;
+            ">
+            Simpan
+        </button>
+
+        <a
+            href="{{ route('inventaris.barang.index') }}"
+            style="
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 80px;
+                height: 42px;
+                flex: 0 0 80px;
+                border: 1px solid #d8cbb5;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 600;
+                color: #162447;
+                background-color: white;
+            ">
+            Batal
+        </a>
+
     </div>
+
+</div>
+
 @endsection
