@@ -116,6 +116,19 @@
                     <p class="px-3 text-xs font-semibold uppercase tracking-wider" style="color:#5a7398;">Administrasi</p>
                 </div>
 
+                <a href="{{ route('admin.laporan.index') }}"
+                   class="group flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
+                   @if(request()->routeIs('admin.laporan.*'))
+                       style="background-color:#F7F1E5; color:#162447;"
+                   @else
+                       style="color:#c8d8ed;"
+                       onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
+                       onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';"
+                   @endif>
+                    <i data-lucide="bar-chart-3" class="mr-3 h-5 w-5 shrink-0"></i>
+                    Laporan Toko
+                </a>
+
                 <a href="#"
                    class="group flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
                    style="color:#c8d8ed;"
@@ -129,107 +142,106 @@
                 </a>
             @endif
 
-{{-- ---- ADMIN & STAFF_BARANG ---- --}}
-@if(auth()->user()->isAdmin() || auth()->user()->isStaffBarang())
-    <div class="pt-4 pb-1">
-        <p class="px-3 text-xs font-semibold uppercase tracking-wider"
-           style="color:#5a7398;">
-            Inventaris
-        </p>
-    </div>
+            {{-- ---- ADMIN & STAFF_BARANG ---- --}}
+            @if(auth()->user()->isAdmin() || auth()->user()->isStaffBarang())
+                <div class="pt-4 pb-1">
+                    <p class="px-3 text-xs font-semibold uppercase tracking-wider"
+                       style="color:#5a7398;">
+                        Inventaris
+                    </p>
+                </div>
 
-    @php
-        $inventarisMenu = [
-            [
-                'label' => 'Data Barang',
-                'route' => 'inventaris.barang.index',
-                'active' => 'inventaris.barang.*'
-            ],
-            [
-                'label' => 'Kategori',
-                'route' => 'inventaris.kategori.index',
-                'active' => 'inventaris.kategori.*'
-            ],
-            [
-                'label' => 'Supplier',
-                'route' => 'inventaris.supplier.index',
-                'active' => 'inventaris.supplier.*'
-            ],
-            [
-                'label' => 'Barang Masuk',
-                'route' => 'inventaris.barang_masuk.index',
-                'active' => 'inventaris.barang_masuk.*'
-            ],
+                @php
+                    $inventarisMenu = [
+                        [
+                            'label' => 'Data Barang',
+                            'route' => 'inventaris.barang.index',
+                            'active' => 'inventaris.barang.*'
+                        ],
+                        [
+                            'label' => 'Kategori',
+                            'route' => 'inventaris.kategori.index',
+                            'active' => 'inventaris.kategori.*'
+                        ],
+                        [
+                            'label' => 'Supplier',
+                            'route' => 'inventaris.supplier.index',
+                            'active' => 'inventaris.supplier.*'
+                        ],
+                        [
+                            'label' => 'Barang Masuk',
+                            'route' => 'inventaris.barang_masuk.index',
+                            'active' => 'inventaris.barang_masuk.*'
+                        ],
+                        [
+                            'label' => 'Penyesuaian Stok',
+                            'route' => 'inventaris.penyesuaian_stok.index',
+                            'active' => 'inventaris.penyesuaian_stok.*'
+                        ],
+                        [
+                            'label' => 'Riwayat Stok',
+                            'route' => 'inventaris.stok_riwayat.index',
+                            'active' => 'inventaris.stok_riwayat.*'
+                        ],
+                        [
+                            'label' => 'Monitoring Stok',
+                            'route' => 'inventaris.monitoring_stok.index',
+                            'active' => 'inventaris.monitoring_stok.*'
+                        ],
+                        [
+                            'label' => 'Rusak & Retur',
+                            'route' => 'rusak-retur.index',
+                            'active' => 'rusak-retur.*'
+                        ],
+                    ];
+                @endphp
 
-[
-    'label' => 'Penyesuaian Stok',
-    'route' => 'inventaris.penyesuaian_stok.index',
-    'active' => 'inventaris.penyesuaian_stok.*'
-],
+                @foreach($inventarisMenu as $menu)
+                    @php($isActive = request()->routeIs($menu['active']))
 
-            [
-                'label' => 'Riwayat Stok',
-                'route' => 'inventaris.stok_riwayat.index',
-                'active' => 'inventaris.stok_riwayat.*'
-            ],
+                    <a href="{{ Route::has($menu['route']) ? route($menu['route']) : '#' }}"
+                       class="group flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
+                       @if($isActive)
+                           style="background-color:#F7F1E5; color:#162447;"
+                       @else
+                           style="color:#c8d8ed;"
+                           onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
+                           onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';"
+                       @endif>
 
-             [
-                'label' => 'Rusak & Retur',
-                'route' => 'rusak-retur.index',
-                'active' => 'rusak-retur.*'
-            ],
-        ];
-    @endphp
+                        <span class="mr-3 flex h-5 w-5 shrink-0 items-center justify-center">
+                            @switch($menu['label'])
+                                @case('Data Barang')
+                                    <i data-lucide="package"></i>
+                                    @break
+                                @case('Kategori')
+                                    <i data-lucide="tags"></i>
+                                    @break
+                                @case('Supplier')
+                                    <i data-lucide="truck"></i>
+                                    @break
+                                @case('Barang Masuk')
+                                    <i data-lucide="package-plus"></i>
+                                    @break
+                                @case('Penyesuaian Stok')
+                                    <i data-lucide="clipboard-pen-line"></i>
+                                    @break
+                                @case('Riwayat Stok')
+                                    <i data-lucide="history"></i>
+                                    @break
+                                @case('Monitoring Stok')
+                                    <i data-lucide="activity"></i>
+                                    @break
+                                @case('Rusak & Retur')
+                                    <i data-lucide="package-minus"></i>
+                                    @break
+                            @endswitch
+                        </span>
 
-    @foreach($inventarisMenu as $menu)
-        @php($isActive = request()->routeIs($menu['active']))
-
-        <a href="{{ Route::has($menu['route']) ? route($menu['route']) : '#' }}"
-           class="group flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
-
-           @if($isActive)
-               style="background-color:#F7F1E5; color:#162447;"
-           @else
-               style="color:#c8d8ed;"
-               onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
-               onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';"
-           @endif>
-
-            <span class="mr-3 flex h-5 w-5 shrink-0 items-center justify-center">
-    @switch($menu['label'])
-        @case('Data Barang')
-            <i data-lucide="package"></i>
-            @break
-
-        @case('Kategori')
-            <i data-lucide="tags"></i>
-            @break
-
-        @case('Supplier')
-            <i data-lucide="truck"></i>
-            @break
-
-        @case('Barang Masuk')
-            <i data-lucide="package-plus"></i>
-            @break
-            @case('Penyesuaian Stok')
-    <i data-lucide="clipboard-pen-line"></i>
-    @break
-
-        @case('Riwayat Stok')
-            <i data-lucide="history"></i>
-            @break
-
-            @case('Rusak & Retur')
-   <i data-lucide="package-minus"></i>
-    @break
-    @endswitch
-</span>
-
-            {{ $menu['label'] }}
-        </a>
-    @endforeach
-@endif
+                        {{ $menu['label'] }}
+                    </a>
+                @endforeach
+            @endif
 
             {{-- ---- ADMIN & KASIR ---- --}}
             @if(auth()->user()->isAdmin() || auth()->user()->isKasir())
