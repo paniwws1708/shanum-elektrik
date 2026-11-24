@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KasirController;
+use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BarangRusakReturController;
@@ -66,10 +67,14 @@ Route::middleware('auth')->group(function () {
     // ================================================================
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('dashboard');
-        // Route Manajemen User, Laporan, dsb — tambahkan di tahap berikutnya
+
+        // Modul Laporan Penjualan & Keuangan (Khusus Admin)
+        Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+        Route::get('/laporan/export-excel', [LaporanController::class, 'exportExcel'])->name('laporan.excel');
+        Route::get('/laporan/cetak-pdf', [LaporanController::class, 'cetakPdf'])->name('laporan.pdf');
     });
 
-        // ================================================================
+    // ================================================================
     // STAFF BARANG ROUTES
     // ================================================================
     Route::middleware('role:staff_barang')->prefix('staff')->name('staff.')->group(function () {
@@ -94,18 +99,19 @@ Route::middleware('auth')->group(function () {
             Route::get('barang-masuk/create', [App\Http\Controllers\Inventaris\BarangMasukController::class, 'create'])->name('barang_masuk.create');
             Route::post('barang-masuk', [App\Http\Controllers\Inventaris\BarangMasukController::class, 'store'])->name('barang_masuk.store');
 
-// Penyesuaian Stok
-Route::get('penyesuaian-stok', [App\Http\Controllers\Inventaris\PenyesuaianStokController::class, 'index'])
-    ->name('penyesuaian_stok.index');
-
-Route::get('penyesuaian-stok/create', [App\Http\Controllers\Inventaris\PenyesuaianStokController::class, 'create'])
-    ->name('penyesuaian_stok.create');
-
-Route::post('penyesuaian-stok', [App\Http\Controllers\Inventaris\PenyesuaianStokController::class, 'store'])
-    ->name('penyesuaian_stok.store');
+            // Penyesuaian Stok
+            Route::get('penyesuaian-stok', [App\Http\Controllers\Inventaris\PenyesuaianStokController::class, 'index'])
+                ->name('penyesuaian_stok.index');
+            Route::get('penyesuaian-stok/create', [App\Http\Controllers\Inventaris\PenyesuaianStokController::class, 'create'])
+                ->name('penyesuaian_stok.create');
+            Route::post('penyesuaian-stok', [App\Http\Controllers\Inventaris\PenyesuaianStokController::class, 'store'])
+                ->name('penyesuaian_stok.store');
 
             // Riwayat Stok (read-only)
             Route::get('stok-riwayat', [App\Http\Controllers\Inventaris\StokRiwayatController::class, 'index'])->name('stok_riwayat.index');
+
+            // Monitoring Kondisi Stok (Admin & Staff Barang)
+            Route::get('monitoring-stok', [LaporanController::class, 'monitoringStok'])->name('monitoring_stok.index');
         });
 
     // ================================================================
@@ -121,8 +127,6 @@ Route::post('penyesuaian-stok', [App\Http\Controllers\Inventaris\PenyesuaianStok
         Route::get('/riwayat/{transaksi}', [KasirController::class, 'show'])->name('show');
     });
 });
-
-
 
 // Fitur barang rusak & retur. 'auth' = harus login dulu.
 // Pembatasan role (admin & staff_barang) ada di dalam controller.
