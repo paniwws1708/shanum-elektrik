@@ -112,6 +112,7 @@
 
             {{-- ---- ADMIN ONLY ---- --}}
             @if(auth()->user()->isAdmin())
+            
                 <div class="pt-4 pb-1">
                     <p class="px-3 text-xs font-semibold uppercase tracking-wider" style="color:#5a7398;">Administrasi</p>
                 </div>
@@ -127,6 +128,21 @@
                    @endif>
                     <i data-lucide="bar-chart-3" class="mr-3 h-5 w-5 shrink-0"></i>
                     Laporan Toko
+                </a>
+                <a href="{{ route('keuangan.index') }}"
+                class="group flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
+                @if(request()->routeIs('keuangan.*'))
+                    {{-- Menu aktif: latar krem, tulisan biru tua --}}
+                    style="background-color:#F7F1E5; color:#162447;"
+                @else
+                    {{-- Menu biasa: berubah warna saat kursor diarahkan --}}
+                    style="color:#c8d8ed;"
+                    onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
+                    onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';"
+                @endif>
+                    {{-- Ikon dompet dari Lucide (library ikon yang sudah dipakai di sidebarmu) --}}
+                    <i data-lucide="wallet" class="mr-3 h-5 w-5 shrink-0"></i>
+                    Keuangan
                 </a>
 
                 <a href="#"
@@ -235,6 +251,7 @@
                                 @case('Rusak & Retur')
                                     <i data-lucide="package-minus"></i>
                                     @break
+                                
                             @endswitch
                         </span>
 

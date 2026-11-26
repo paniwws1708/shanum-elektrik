@@ -8,6 +8,10 @@ use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BarangRusakReturController;
+use App\Http\Controllers\KeuanganController;
+use App\Http\Controllers\PemasukanController;
+use App\Http\Controllers\PengeluaranController;
+use App\Http\Controllers\PenjualanHarianController;
 
 /*
 |--------------------------------------------------------------------------
@@ -137,4 +141,34 @@ Route::middleware('auth')
         Route::get('/', [BarangRusakReturController::class, 'index'])->name('index');
         Route::get('/create', [BarangRusakReturController::class, 'create'])->name('create');
         Route::post('/', [BarangRusakReturController::class, 'store'])->name('store');
+    });
+
+
+
+
+// ===== Modul Keuangan (HANYA ADMIN) =====
+// Isi array middleware:
+//   'auth'     = harus login dulu
+//   function   = pengecekan role. Selain admin langsung kena error 403.
+// Pengecekan ditaruh di sini, jadi semua route di dalam grup otomatis terlindungi.
+  Route::middleware('auth', 'role:admin')
+    ->prefix('keuangan')     // URL diawali /keuangan
+    ->name('keuangan.')      // nama route diawali keuangan.
+    ->group(function () {
+        // Ringkasan
+        Route::get('/', [KeuanganController::class, 'index'])->name('index');
+
+        // Pemasukan
+        Route::get('/pemasukan', [PemasukanController::class, 'index'])->name('pemasukan.index');
+        Route::post('/pemasukan', [PemasukanController::class, 'store'])->name('pemasukan.store');
+        Route::delete('/pemasukan/{pemasukan}', [PemasukanController::class, 'destroy'])->name('pemasukan.destroy');
+
+        // Pengeluaran
+        Route::get('/pengeluaran', [PengeluaranController::class, 'index'])->name('pengeluaran.index');
+        Route::post('/pengeluaran', [PengeluaranController::class, 'store'])->name('pengeluaran.store');
+        Route::delete('/pengeluaran/{pengeluaran}', [PengeluaranController::class, 'destroy'])->name('pengeluaran.destroy');
+
+        // Penjualan harian
+        Route::get('/penjualan-harian', [PenjualanHarianController::class, 'index'])->name('penjualan-harian.index');
+        Route::post('/penjualan-harian', [PenjualanHarianController::class, 'catat'])->name('penjualan-harian.catat');
     });
