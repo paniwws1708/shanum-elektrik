@@ -3,72 +3,56 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barang;
-use App\Models\BarangMasuk;
-use App\Models\Transaksi;
+use App\Models\Pemasukan;
+use App\Models\Pengeluaran;
+use App\Services\KeuanganService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class LaporanController extends Controller
 {
-    private function getDataLaporan(Request $request)
+    private function getDataLaporan(Request $request): array
     {
-        $periode = $request->get('periode', 'harian');
-        $startDate = $request->get('start_date');
-        $endDate = $request->get('end_date');
+        $periode = $request->input('periode', 'harian');
+        $today = Carbon::today();
 
-        if ($periode === 'harian') {
-            $start = Carbon::today()->startOfDay();
-            $end = Carbon::today()->endOfDay();
-        } elseif ($periode === 'mingguan') {
-            $start = Carbon::now()->startOfWeek();
-            $end = Carbon::now()->endOfWeek();
-        } elseif ($periode === 'bulanan') {
-            $start = Carbon::now()->startOfMonth();
-            $end = Carbon::now()->endOfMonth();
+        if ($request->filled('dari') && $request->filled('sampai')) {
+            $startDate = $request->input('dari');
+            $endDate = $request->input('sampai');
         } else {
-            $start = $startDate ? Carbon::parse($startDate)->startOfDay() : Carbon::today()->startOfDay();
-            $end = $endDate ? Carbon::parse($endDate)->endOfDay() : Carbon::today()->endOfDay();
-        }
-
-        $transaksis = Transaksi::with(['user', 'detailTransaksis.barang'])
-            ->whereBetween('created_at', [$start, $end])
-            ->latest()
-            ->get();
-
-        $totalTransaksi = $transaksis->count();
-        $totalOmzet = $transaksis->sum('total_harga');
-
-        $totalHargaModalTerjual = 0;
-        foreach ($transaksis as $trx) {
-            foreach ($trx->detailTransaksis as $detail) {
-                $hargaModal = $detail->barang ? $detail->barang->harga_modal : 0;
-                $totalHargaModalTerjual += ($hargaModal * $detail->jumlah);
+            switch ($periode) {
+                case 'mingguan':
+                    $startDate = $today->copy()->startOfWeek()->toDateString();
+                    $endDate = $today->copy()->endOfWeek()->toDateString();
+                    break;
+                case 'bulanan':
+                    $startDate = $today->copy()->startOfMonth()->toDateString();
+                    $endDate = $today->copy()->endOfMonth()->toDateString();
+                    break;
+                case 'harian':
+                default:
+                    $startDate = $today->toDateString();
+                    $endDate = $today->toDateString();
+                    break;
             }
         }
 
-        $barangMasuks = BarangMasuk::with(['barang', 'supplier'])
-            ->whereBetween('tanggal_masuk', [$start->toDateString(), $end->toDateString()])
-            ->latest('tanggal_masuk')
-            ->get();
+        // Memanggil jembatan perhitungan keuangan dari KeuanganService
+        $ringkasan = KeuanganService::ringkasan($startDate, $endDate);
 
-        $totalPengeluaran = $barangMasuks->sum(function ($item) {
-            return $item->jumlah * ($item->harga_modal_satuan ?? 0);
-        });
-
-        $keuntunganBersih = $totalOmzet - $totalHargaModalTerjual - $totalPengeluaran;
+        // Mengambil daftar rincian pemasukan & pengeluaran pada periode tersebut
+        // Mengambil daftar rincian pemasukan & pengeluaran pada periode tersebut
+        $daftarPemasukan = Pemasukan::antara($startDate, $endDate)->latest('tanggal')->get();
+        $daftarPengeluaran = Pengeluaran::antara($startDate, $endDate)->latest('tanggal')->get();
 
         return [
             'periode' => $periode,
-            'startDate' => $start->toDateString(),
-            'endDate' => $end->toDateString(),
-            'transaksis' => $transaksis,
-            'barangMasuks' => $barangMasuks,
-            'totalTransaksi' => $totalTransaksi,
-            'totalOmzet' => $totalOmzet,
-            'totalHargaModalTerjual' => $totalHargaModalTerjual,
-            'totalPengeluaran' => $totalPengeluaran,
-            'keuntunganBersih' => $keuntunganBersih,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'ringkasan' => $ringkasan,
+            'daftarPemasukan' => $daftarPemasukan,
+            'daftarPengeluaran' => $daftarPengeluaran,
         ];
     }
 
@@ -78,76 +62,34 @@ class LaporanController extends Controller
         return view('laporan.index', $data);
     }
 
-    public function cetakPdf(Request $request)
+    public function exportPdf(Request $request)
     {
         $data = $this->getDataLaporan($request);
-        return view('laporan.pdf', $data);
+        $pdf = Pdf::loadView('laporan.pdf', $data)->setPaper('a4', 'portrait');
+        return $pdf->download("Laporan-Keuangan-{$data['startDate']}-sd-{$data['endDate']}.pdf");
     }
 
     public function exportExcel(Request $request)
     {
         $data = $this->getDataLaporan($request);
-        $filename = 'Laporan_Shanum_Elektrik_' . $data['startDate'] . '_sd_' . $data['endDate'] . '.xls';
+        $filename = "Laporan-Keuangan-{$data['startDate']}-sd-{$data['endDate']}.xls";
 
         return response()
             ->view('laporan.excel', $data)
             ->header('Content-Type', 'application/vnd.ms-excel')
-            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+            ->header('Content-Disposition', "attachment; filename=\"{$filename}\"");
     }
 
-    public function monitoringStok(Request $request)
+    public function monitoringStok()
     {
-        $filterStatus = $request->get('status', 'semua');
-
-        $semuaBarang = Barang::with('kategori')
-            ->leftJoin('detail_transaksis', 'barangs.id', '=', 'detail_transaksis.barang_id')
-            ->select(
-                'barangs.*',
-                DB::raw('COALESCE(SUM(detail_transaksis.jumlah), 0) as total_terjual')
-            )
-            ->groupBy(
-                'barangs.id',
-                'barangs.kode_barang',
-                'barangs.nama_barang',
-                'barangs.kategori_id',
-                'barangs.harga_modal',
-                'barangs.harga_jual',
-                'barangs.stok',
-                'barangs.stok_minimum',
-                'barangs.lokasi_penyimpanan',
-                'barangs.foto',
-                'barangs.deleted_at',
-                'barangs.created_at',
-                'barangs.updated_at'
-            )
-            ->get();
-
-        $stokMenipisCount = $semuaBarang->filter(fn($b) => $b->stok <= $b->stok_minimum)->count();
-        $stokSedangCount  = $semuaBarang->filter(fn($b) => $b->stok > $b->stok_minimum && $b->stok <= ($b->stok_minimum * 2))->count();
-        $stokBanyakCount  = $semuaBarang->filter(fn($b) => $b->stok > ($b->stok_minimum * 2))->count();
-
-        $barangs = $semuaBarang->filter(function ($b) use ($filterStatus) {
-            if ($filterStatus === 'menipis') {
-                return $b->stok <= $b->stok_minimum;
-            } elseif ($filterStatus === 'sedang') {
-                return $b->stok > $b->stok_minimum && $b->stok <= ($b->stok_minimum * 2);
-            } elseif ($filterStatus === 'banyak') {
-                return $b->stok > ($b->stok_minimum * 2);
-            }
-            return true;
-        })->sortBy('stok');
-
-        $barangTerlaris = $semuaBarang->sortByDesc('total_terjual')->take(5);
-        $barangJarangTerjual = $semuaBarang->sortBy('total_terjual')->take(5);
+        $barangHabis = Barang::where('stok', '<=', 0)->get();
+        $barangMenipis = Barang::where('stok', '>', 0)->where('stok', '<=', 5)->get();
+        $barangAman = Barang::where('stok', '>', 5)->get();
 
         return view('laporan.monitoring_stok', compact(
-            'barangs',
-            'filterStatus',
-            'stokMenipisCount',
-            'stokSedangCount',
-            'stokBanyakCount',
-            'barangTerlaris',
-            'barangJarangTerjual'
+            'barangHabis',
+            'barangMenipis',
+            'barangAman'
         ));
     }
 }
