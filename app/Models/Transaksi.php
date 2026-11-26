@@ -6,11 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-/**
- * Model Transaksi — mewakili satu transaksi penjualan di kasir.
- */
+
 class Transaksi extends Model
 {
+    public const AWALAN_INVOICE ='INV-';
+    public const PANJANG_URUTAN = 4;
+
+
     protected $fillable = [
         'no_invoice',
         'user_id',
@@ -25,43 +27,49 @@ class Transaksi extends Model
         'kembalian'   => 'decimal:2',
     ];
 
-    // ───────────────────────────── Relasi ─────────────────────────────
 
-    /** Detail item dalam transaksi ini */
+
+    /** relasi details() yang menyatakan satu transaksi punya banyak detail (1:N) */
     public function details(): HasMany
     {
         return $this->hasMany(DetailTransaksi::class);
     }
 
-    /** Kasir yang melayani transaksi */
+    /** relasi kasir() yang menyatakan satu transaksi hanya dimiliki oleh 1 user (1:N) */
     public function kasir(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // ───────────────────────── Generate Invoice ──────────────────────
 
-    /**
-     * Buat nomor invoice unik berformat INV-YYYYMMDD-XXXX.
-     * Contoh: INV-20261121-0001
-     */
+
+
+
+
+
     public static function buatNoInvoice(): string
     {
+        // 1. awalan nomor hari ini : INV-tanggal-
         $tanggal = now()->format('Ymd');
-        $prefix  = 'INV-' . $tanggal . '-';
+        $prefix = self::AWALAN_INVOICE . $tanggal . '-';
 
-        // Cari invoice terakhir hari ini
-        $terakhir = static::where('no_invoice', 'like', $prefix . '%')
-            ->orderByDesc('no_invoice')
-            ->value('no_invoice');
+        // 2. cari nomor invoice terakhir hari ini 
+        $terakhir = static::where ('no_invoice', 'like', $prefix . '%')
+                            ->orderBy ('no_invoice')
+                            ->value('no_invoice');
 
+
+        // 3. kalau ada: ambil 4 digit terakhir lalu tambah 1; kalau tidak mulai dari 1
         if ($terakhir) {
-            // Ambil 4 digit terakhir, tambah 1
-            $urutan = (int) substr($terakhir, -4) + 1;
+            $urutan = (int) substr($terakhir, -self::PANJANG_URUTAN) + 1;
         } else {
             $urutan = 1;
         }
 
-        return $prefix . str_pad($urutan, 4, '0', STR_PAD_LEFT);
+        // 4. gabungkan awalan + urutan 4 digit (diisi nol di depan)
+        return $prefix . str_pad($urutan, self::PANJANG_URUTAN, '0', STR_PAD_LEFT);
+
+
     }
+
 }

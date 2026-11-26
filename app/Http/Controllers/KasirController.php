@@ -6,6 +6,7 @@ use App\Models\Barang;
 use App\Models\Kategori;
 use App\Models\Transaksi;
 use App\Services\StokService;
+use App\Http\Requests\StoreTransaksiRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,7 @@ use Illuminate\Validation\ValidationException;
  */
 class KasirController extends Controller
 {
+    private const PER_HALAMAN = 10;
     // ═══════════════════════════════════════════════════════════════
     //  POS — Halaman kasir untuk membuat transaksi baru
     // ═══════════════════════════════════════════════════════════════
@@ -42,21 +44,9 @@ class KasirController extends Controller
     // ═══════════════════════════════════════════════════════════════
     //  STORE — Simpan transaksi baru (dipanggil dari form POS)
     // ═══════════════════════════════════════════════════════════════
-    public function store(Request $request, StokService $stokService)
+    public function store(StoreTransaksiRequest $request, StokService $stokService)
     {
-        // --- Validasi input dari form ---
-        $request->validate([
-            'items'          => 'required|array|min:1',
-            'items.*.barang_id' => 'required|exists:barangs,id',
-            'items.*.qty'    => 'required|integer|min:1',
-            'bayar'          => 'required|numeric|min:0',
-        ], [
-            'items.required'           => 'Keranjang tidak boleh kosong.',
-            'items.min'                => 'Keranjang tidak boleh kosong.',
-            'items.*.barang_id.exists' => 'Barang tidak ditemukan.',
-            'items.*.qty.min'          => 'Jumlah minimal 1.',
-            'bayar.required'           => 'Masukkan jumlah uang pembayaran.',
-        ]);
+
 
         // --- Proses di dalam DB::transaction agar atomik ---
         $transaksi = DB::transaction(function () use ($request, $stokService) {
@@ -159,7 +149,7 @@ class KasirController extends Controller
             });
         }
 
-        $transaksis = $query->paginate(10)->withQueryString();
+        $transaksis = $query->paginate(self::PER_HALAMAN)->withQueryString();
         $kategoris  = Kategori::orderBy('nama')->get();
 
         return view('kasir.riwayat', compact('transaksis', 'kategoris'));
@@ -171,9 +161,12 @@ class KasirController extends Controller
     public function show(Transaksi $transaksi)
     {
         // Kasir hanya boleh lihat transaksinya sendiri
-        if (Auth::user()->isKasir() && $transaksi->user_id !== Auth::id()) {
-            abort(403, 'Anda tidak berhak melihat transaksi ini.');
-        }
+        abort_if(
+            Auth::user()->isKasir() && $transaksi->user_id !== Auth::id(),
+            403,
+            'Anda Tidak berhak melihat transaksi ini.'
+        );
+        
 
         $transaksi->load('details.barang', 'kasir');
 
