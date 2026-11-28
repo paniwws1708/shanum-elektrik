@@ -85,6 +85,35 @@
                        onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
                        onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';"
                    @endif>
+                    <i data-lucide="bar-chart-3" class="mr-3 h-5 w-5 shrink-0"></i>
+                    Laporan Toko
+                </a>
+                <a href="{{ route('keuangan.index') }}"
+                class="group flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
+                @if(request()->routeIs('keuangan.*'))
+                    {{-- Menu aktif: latar krem, tulisan biru tua --}}
+                    style="background-color:#F7F1E5; color:#162447;"
+                @else
+                    {{-- Menu biasa: berubah warna saat kursor diarahkan --}}
+                    style="color:#c8d8ed;"
+                    onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
+                    onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';"
+                @endif>
+                    {{-- Ikon dompet dari Lucide (library ikon yang sudah dipakai di sidebarmu) --}}
+                    <i data-lucide="wallet" class="mr-3 h-5 w-5 shrink-0"></i>
+                    Keuangan
+                </a>
+
+                <a hre  f="#"
+                   class="group flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
+                   style="color:#c8d8ed;"
+                   onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
+                   onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';">
+                    <svg class="mr-3 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:#8a9bb5;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                    </svg>
+                    Manajemen Pengguna
+                    <span class="ml-auto text-xs px-1.5 py-0.5 rounded font-medium" style="background-color:#1e3060; color:#8a9bb5;">Soon</span>
                     <i data-lucide="users" class="mr-3 h-4 w-4 shrink-0" style="{{ $isPenggunaActive ? 'color:#162447;' : 'color:#8a9bb5;' }}"></i>
                     Pengguna
                 </a>
