@@ -48,10 +48,10 @@ class PemasukanController extends Controller
         $data = $request->validated(); // hanya data yang lolos validasi
 
         Pemasukan::create([
-            'user_id'    => auth()->id(), // admin yang sedang login
-            'tanggal'    => $data['tanggal'],
-            'sumber'     => 'lainnya',
-            'jumlah'     => $data['jumlah'],
+            'user_id' => auth()->id(), // admin yang sedang login
+            'tanggal' => $data['tanggal'],
+            'sumber' => 'lainnya',
+            'jumlah' => $data['jumlah'],
             'keterangan' => $data['keterangan'],
         ]);
 

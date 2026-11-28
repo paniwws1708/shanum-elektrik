@@ -21,8 +21,8 @@ class Transaksi extends Model
 
     protected $casts = [
         'total_harga' => 'decimal:2',
-        'bayar'       => 'decimal:2',
-        'kembalian'   => 'decimal:2',
+        'bayar' => 'decimal:2',
+        'kembalian' => 'decimal:2',
     ];
 
     // ───────────────────────────── Relasi ─────────────────────────────
@@ -48,10 +48,10 @@ class Transaksi extends Model
     public static function buatNoInvoice(): string
     {
         $tanggal = now()->format('Ymd');
-        $prefix  = 'INV-' . $tanggal . '-';
+        $prefix = 'INV-'.$tanggal.'-';
 
         // Cari invoice terakhir hari ini
-        $terakhir = static::where('no_invoice', 'like', $prefix . '%')
+        $terakhir = static::where('no_invoice', 'like', $prefix.'%')
             ->orderByDesc('no_invoice')
             ->value('no_invoice');
 
@@ -62,6 +62,6 @@ class Transaksi extends Model
             $urutan = 1;
         }
 
-        return $prefix . str_pad($urutan, 4, '0', STR_PAD_LEFT);
+        return $prefix.str_pad($urutan, 4, '0', STR_PAD_LEFT);
     }
 }

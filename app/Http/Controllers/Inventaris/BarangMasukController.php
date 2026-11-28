@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Inventaris;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Inventaris\StoreBarangMasukRequest;
-use App\Models\BarangMasuk;
 use App\Models\Barang;
+use App\Models\BarangMasuk;
 use App\Models\Supplier;
 use App\Services\StokService;
 use Illuminate\Http\RedirectResponse;
@@ -23,7 +23,7 @@ class BarangMasukController extends Controller
         $query = BarangMasuk::with([
             'barang',
             'supplier',
-            'user'
+            'user',
         ]);
 
         // Pencarian berdasarkan nama barang atau supplier.

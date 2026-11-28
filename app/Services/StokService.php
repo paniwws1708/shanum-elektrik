@@ -88,6 +88,7 @@ class StokService
             $referensi
         );
     }
+
     /**
      * Menyesuaikan stok berdasarkan hasil penghitungan fisik.
      */
@@ -137,7 +138,6 @@ class StokService
             return $barang;
         });
     }
-
 
     /**
      * Menerapkan perubahan stok dan mencatat riwayat.

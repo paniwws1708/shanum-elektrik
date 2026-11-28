@@ -22,7 +22,7 @@ class StoreKategoriRequest extends FormRequest
     {
         return [
             'nama.required' => 'Nama kategori harus diisi.',
-            'nama.unique'   => 'Nama kategori sudah ada.',
+            'nama.unique' => 'Nama kategori sudah ada.',
         ];
     }
 }

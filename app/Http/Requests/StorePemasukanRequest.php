@@ -15,8 +15,8 @@ class StorePemasukanRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'tanggal'    => ['required', 'date', 'before_or_equal:today'],
-            'jumlah'     => ['required', 'numeric', 'min:1', 'max:999999999999'],
+            'tanggal' => ['required', 'date', 'before_or_equal:today'],
+            'jumlah' => ['required', 'numeric', 'min:1', 'max:999999999999'],
             'keterangan' => ['required', 'string', 'max:255'],
         ];
     }
@@ -24,11 +24,11 @@ class StorePemasukanRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'tanggal.required'        => 'Tanggal wajib diisi.',
+            'tanggal.required' => 'Tanggal wajib diisi.',
             'tanggal.before_or_equal' => 'Tanggal tidak boleh melebihi hari ini.',
-            'jumlah.required'         => 'Jumlah wajib diisi.',
-            'jumlah.min'              => 'Jumlah minimal Rp 1.',
-            'keterangan.required'     => 'Keterangan wajib diisi.',
+            'jumlah.required' => 'Jumlah wajib diisi.',
+            'jumlah.min' => 'Jumlah minimal Rp 1.',
+            'keterangan.required' => 'Keterangan wajib diisi.',
         ];
     }
 }

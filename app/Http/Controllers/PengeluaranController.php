@@ -39,10 +39,10 @@ class PengeluaranController extends Controller
         $data = $request->validated();
 
         Pengeluaran::create([
-            'user_id'    => auth()->id(),
-            'tanggal'    => $data['tanggal'],
-            'kategori'   => $data['kategori'],
-            'jumlah'     => $data['jumlah'],
+            'user_id' => auth()->id(),
+            'tanggal' => $data['tanggal'],
+            'kategori' => $data['kategori'],
+            'jumlah' => $data['jumlah'],
             'keterangan' => $data['keterangan'],
         ]);
 

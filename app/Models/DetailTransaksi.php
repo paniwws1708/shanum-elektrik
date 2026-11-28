@@ -23,8 +23,8 @@ class DetailTransaksi extends Model
 
     protected $casts = [
         'harga_satuan' => 'decimal:2',
-        'jumlah'       => 'integer',
-        'subtotal'     => 'decimal:2',
+        'jumlah' => 'integer',
+        'subtotal' => 'decimal:2',
     ];
 
     // ───────────────────────────── Relasi ─────────────────────────────

@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Barang;
-use App\Models\DetailTransaksi;
 use App\Models\Transaksi;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -19,8 +18,9 @@ class TransaksiSeeder extends Seeder
     {
         // Ambil user kasir
         $kasir = User::where('role', 'kasir')->first();
-        if (!$kasir) {
+        if (! $kasir) {
             $this->command->warn('User kasir tidak ditemukan. TransaksiSeeder dilewati.');
+
             return;
         }
 
@@ -28,48 +28,49 @@ class TransaksiSeeder extends Seeder
         $barangs = Barang::where('stok', '>', 0)->get();
         if ($barangs->isEmpty()) {
             $this->command->warn('Tabel barangs kosong atau tidak ada stok. TransaksiSeeder dilewati.');
+
             return;
         }
 
-        $this->command->info("Membuat 30 transaksi contoh...");
+        $this->command->info('Membuat 30 transaksi contoh...');
 
         for ($i = 1; $i <= 30; $i++) {
             // Ambil 1-4 barang acak untuk tiap transaksi
-            $itemCount   = rand(1, min(4, $barangs->count()));
+            $itemCount = rand(1, min(4, $barangs->count()));
             $barangDipilih = $barangs->random($itemCount);
 
             $totalHarga = 0;
             $detailRows = [];
 
             foreach ($barangDipilih as $barang) {
-                $qty      = rand(1, 3);
+                $qty = rand(1, 3);
                 $subtotal = $barang->harga_jual * $qty;
                 $totalHarga += $subtotal;
 
                 $detailRows[] = [
-                    'barang_id'    => $barang->id,
-                    'nama_barang'  => $barang->nama_barang,
+                    'barang_id' => $barang->id,
+                    'nama_barang' => $barang->nama_barang,
                     'harga_satuan' => $barang->harga_jual,
-                    'jumlah'       => $qty,
-                    'subtotal'     => $subtotal,
+                    'jumlah' => $qty,
+                    'subtotal' => $subtotal,
                 ];
             }
 
             // Bayar dibulatkan ke atas (kelipatan 1000) agar realistis
-            $bayar     = ceil($totalHarga / 1000) * 1000;
+            $bayar = ceil($totalHarga / 1000) * 1000;
             $kembalian = $bayar - $totalHarga;
 
             // Buat transaksi dengan tanggal acak 30 hari terakhir
             $tanggal = now()->subDays(rand(0, 29))->addHours(rand(8, 20));
 
             $transaksi = Transaksi::create([
-                'no_invoice'  => 'INV-' . $tanggal->format('Ymd') . '-' . str_pad($i, 4, '0', STR_PAD_LEFT),
-                'user_id'     => $kasir->id,
+                'no_invoice' => 'INV-'.$tanggal->format('Ymd').'-'.str_pad($i, 4, '0', STR_PAD_LEFT),
+                'user_id' => $kasir->id,
                 'total_harga' => $totalHarga,
-                'bayar'       => $bayar,
-                'kembalian'   => $kembalian,
-                'created_at'  => $tanggal,
-                'updated_at'  => $tanggal,
+                'bayar' => $bayar,
+                'kembalian' => $kembalian,
+                'created_at' => $tanggal,
+                'updated_at' => $tanggal,
             ]);
 
             // Simpan detail transaksi
