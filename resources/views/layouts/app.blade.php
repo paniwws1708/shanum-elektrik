@@ -145,7 +145,7 @@
                     Keuangan
                 </a>
 
-                <a href="#"
+                <a hre  f="#"
                    class="group flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
                    style="color:#c8d8ed;"
                    onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
