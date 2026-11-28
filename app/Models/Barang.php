@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Barang extends Model
 {
@@ -32,9 +32,9 @@ class Barang extends Model
      * Konversi tipe data atribut.
      */
     protected $casts = [
-        'harga_modal'  => 'decimal:2',
-        'harga_jual'   => 'decimal:2',
-        'stok'         => 'integer',
+        'harga_modal' => 'decimal:2',
+        'harga_jual' => 'decimal:2',
+        'stok' => 'integer',
         'stok_minimum' => 'integer',
     ];
 

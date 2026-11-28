@@ -17,6 +17,7 @@ class SupplierController extends Controller
     public function index(): View
     {
         $suppliers = Supplier::orderBy('nama')->paginate(15);
+
         return view('inventaris.supplier.index', compact('suppliers'));
     }
 
@@ -34,6 +35,7 @@ class SupplierController extends Controller
     public function store(StoreSupplierRequest $request): RedirectResponse
     {
         Supplier::create($request->validated());
+
         return redirect()->route('inventaris.supplier.index')
             ->with('success', 'Supplier berhasil ditambahkan.');
     }
@@ -52,6 +54,7 @@ class SupplierController extends Controller
     public function update(UpdateSupplierRequest $request, Supplier $supplier): RedirectResponse
     {
         $supplier->update($request->validated());
+
         return redirect()->route('inventaris.supplier.index')
             ->with('success', 'Supplier berhasil diubah.');
     }
@@ -62,6 +65,7 @@ class SupplierController extends Controller
     public function destroy(Supplier $supplier): RedirectResponse
     {
         $supplier->delete();
+
         return redirect()->route('inventaris.supplier.index')
             ->with('success', 'Supplier dihapus.');
     }

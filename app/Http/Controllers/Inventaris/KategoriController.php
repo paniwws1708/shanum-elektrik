@@ -7,7 +7,6 @@ use App\Http\Requests\Inventaris\StoreKategoriRequest;
 use App\Http\Requests\Inventaris\UpdateKategoriRequest;
 use App\Models\Kategori;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class KategoriController extends Controller
@@ -15,6 +14,7 @@ class KategoriController extends Controller
     public function index(): View
     {
         $kategoris = Kategori::orderBy('nama')->paginate(15);
+
         return view('inventaris.kategori.index', compact('kategoris'));
     }
 
@@ -26,6 +26,7 @@ class KategoriController extends Controller
     public function store(StoreKategoriRequest $request): RedirectResponse
     {
         Kategori::create($request->validated());
+
         return redirect()->route('inventaris.kategori.index')->with('success', 'Kategori berhasil ditambahkan.');
     }
 
@@ -37,6 +38,7 @@ class KategoriController extends Controller
     public function update(UpdateKategoriRequest $request, Kategori $kategori): RedirectResponse
     {
         $kategori->update($request->validated());
+
         return redirect()->route('inventaris.kategori.index')->with('success', 'Kategori berhasil diubah.');
     }
 
@@ -46,6 +48,7 @@ class KategoriController extends Controller
             return redirect()->route('inventaris.kategori.index')->with('error', 'Tidak dapat menghapus kategori yang masih dipakai barang.');
         }
         $kategori->delete();
+
         return redirect()->route('inventaris.kategori.index')->with('success', 'Kategori dihapus.');
     }
 }

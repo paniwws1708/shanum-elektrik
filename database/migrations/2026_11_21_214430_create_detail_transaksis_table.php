@@ -15,17 +15,16 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('transaksi_id')
-                  ->constrained('transaksis')
-                  ->cascadeOnDelete();
-                  
-            $table->foreignId('barang_id')
-                  ->constrained('barangs');
+                ->constrained('transaksis')
+                ->cascadeOnDelete();
 
-            $table->string('nama_barang'); 
-            $table->decimal('harga_satuan', 12, 2);     
+            $table->foreignId('barang_id')
+                ->constrained('barangs');
+
+            $table->string('nama_barang');
+            $table->decimal('harga_satuan', 12, 2);
             $table->integer('jumlah');
             $table->decimal('subtotal', 12, 2);
-
 
             $table->timestamps();
         });

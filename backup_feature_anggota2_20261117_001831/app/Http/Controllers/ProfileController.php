@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -16,6 +15,7 @@ class ProfileController extends Controller
     public function edit()
     {
         $user = Auth::user();
+
         return view('profile.edit', compact('user'));
     }
 
@@ -27,12 +27,12 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         $request->validate([
-            'name'  => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
         ]);
 
         $user->update([
-            'name'  => $request->name,
+            'name' => $request->name,
             'email' => $request->email,
         ]);
 
@@ -47,12 +47,12 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         $request->validate([
-            'current_password'      => ['required'],
-            'password'              => ['required', 'string', 'min:8', 'confirmed'],
+            'current_password' => ['required'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
         // Cek password lama
-        if (!Hash::check($request->current_password, $user->password)) {
+        if (! Hash::check($request->current_password, $user->password)) {
             return back()->withErrors([
                 'current_password' => 'Password saat ini tidak sesuai.',
             ])->withInput();

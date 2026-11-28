@@ -7,7 +7,12 @@
     <title>@yield('title', 'Shanum Elektrik')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="h-full font-sans antialiased" style="background-color:#F7F1E5;">
+<body class="h-full font-sans antialiased" style="background-color:#F7F1E5; color:#162447;">
+
+@php
+    $roleLabels = ['admin' => 'Admin', 'staff_barang' => 'Staff Barang', 'kasir' => 'Kasir'];
+    $role = auth()->user()->role;
+@endphp
 
 <div class="min-h-screen flex" x-data="{ sidebarOpen: false }">
 
@@ -32,53 +37,29 @@
     ============================================================ --}}
     <aside
         :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
-        class="fixed inset-y-0 left-0 z-30 w-64 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto lg:flex"
+        class="fixed inset-y-0 left-0 z-30 w-60 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto lg:flex shrink-0"
         style="background-color:#162447;"
     >
         {{-- Logo / Brand --}}
-        <div class="flex items-center h-16 px-5 shrink-0" style="border-bottom:1px solid #1e3060;">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 shrink-0" style="background-color:#F7F1E5;">
+        <div class="flex items-center gap-3 px-5 pt-6 pb-5 shrink-0">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background-color:#F7F1E5;">
                 <svg class="w-5 h-5" fill="none" stroke="#162447" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                 </svg>
             </div>
-            <div>
-                <span class="text-sm font-bold tracking-tight" style="color:#F7F1E5;">Shanum Elektrik</span>
-                <p class="text-xs leading-tight" style="color:#8a9bb5;">Kasir & Inventaris</p>
-            </div>
-        </div>
-
-        {{-- User Info --}}
-        <div class="px-4 py-4 shrink-0" style="border-bottom:1px solid #1e3060;">
-            <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shrink-0"
-                     style="background-color:#F7F1E5; color:#162447;">
-                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                </div>
-                <div class="min-w-0 flex-1">
-                    <p class="text-sm font-semibold truncate" style="color:#F7F1E5;">{{ auth()->user()->name }}</p>
-                    @php
-                        $roleLabels = ['admin'=>'Admin','staff_barang'=>'Staff Barang','kasir'=>'Kasir'];
-                        $role = auth()->user()->role;
-                    @endphp
-                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold mt-0.5"
-                          style="background-color:#F7F1E5; color:#162447;">
-                        {{ $roleLabels[$role] ?? ucfirst($role) }}
-                    </span>
-                </div>
+            <div class="min-w-0">
+                <span class="block text-sm font-bold tracking-tight leading-tight" style="color:#F7F1E5;">Shanum Elektrik</span>
+                <p class="text-xs leading-tight mt-0.5" style="color:#8a9bb5;">Panel {{ $roleLabels[$role] ?? ucfirst($role) }}</p>
             </div>
         </div>
 
         {{-- Navigation --}}
-        <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
-
-            {{-- ---- SEMUA ROLE ---- --}}
-            <p class="px-3 text-xs font-semibold uppercase tracking-wider mb-2 mt-1" style="color:#5a7398;">Umum</p>
+        <nav class="flex-1 overflow-y-auto px-3 py-2 space-y-1">
 
             {{-- Dashboard --}}
             <a href="{{ route('dashboard') }}"
-               class="group flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150
-                       {{ request()->routeIs('*.dashboard') ? 'sidebar-active' : 'sidebar-link' }}"
+               class="group flex items-center px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
+                       {{ request()->routeIs('*.dashboard') ? 'sidebar-active font-semibold' : 'sidebar-link' }}"
                @if(request()->routeIs('*.dashboard'))
                    style="background-color:#F7F1E5; color:#162447;"
                @else
@@ -86,137 +67,60 @@
                    onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
                    onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';"
                @endif>
-                <svg class="mr-3 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                     style="{{ request()->routeIs('*.dashboard') ? 'color:#162447;' : 'color:#8a9bb5;' }}">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                </svg>
+                <i data-lucide="home" class="mr-3 h-4 w-4 shrink-0" style="{{ request()->routeIs('*.dashboard') ? 'color:#162447;' : 'color:#8a9bb5;' }}"></i>
                 Dashboard
             </a>
 
-            {{-- Profil Saya --}}
-            <a href="{{ route('profile.edit') }}"
-               class="group flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
-               @if(request()->routeIs('profile.*'))
-                   style="background-color:#F7F1E5; color:#162447;"
-               @else
-                   style="color:#c8d8ed;"
-                   onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
-                   onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';"
-               @endif>
-                <svg class="mr-3 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                     style="{{ request()->routeIs('profile.*') ? 'color:#162447;' : 'color:#8a9bb5;' }}">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                Profil Saya
-            </a>
-
-            {{-- ---- ADMIN ONLY ---- --}}
+            {{-- ---- ADMIN ONLY: Pengguna ---- --}}
             @if(auth()->user()->isAdmin())
-            
-                <div class="pt-4 pb-1">
-                    <p class="px-3 text-xs font-semibold uppercase tracking-wider" style="color:#5a7398;">Administrasi</p>
-                </div>
-
-                <a href="{{ route('admin.laporan.index') }}"
-                   class="group flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
-                   @if(request()->routeIs('admin.laporan.*'))
+                @php
+                    $isPenggunaActive = request()->routeIs('profile.*');
+                @endphp
+                <a href="{{ route('profile.edit') }}"
+                   class="group flex items-center px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ $isPenggunaActive ? 'font-semibold' : '' }}"
+                   @if($isPenggunaActive)
                        style="background-color:#F7F1E5; color:#162447;"
                    @else
                        style="color:#c8d8ed;"
                        onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
                        onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';"
                    @endif>
-                    <i data-lucide="bar-chart-3" class="mr-3 h-5 w-5 shrink-0"></i>
-                    Laporan Toko
-                </a>
-                <a href="{{ route('keuangan.index') }}"
-                class="group flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
-                @if(request()->routeIs('keuangan.*'))
-                    {{-- Menu aktif: latar krem, tulisan biru tua --}}
-                    style="background-color:#F7F1E5; color:#162447;"
-                @else
-                    {{-- Menu biasa: berubah warna saat kursor diarahkan --}}
-                    style="color:#c8d8ed;"
-                    onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
-                    onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';"
-                @endif>
-                    {{-- Ikon dompet dari Lucide (library ikon yang sudah dipakai di sidebarmu) --}}
-                    <i data-lucide="wallet" class="mr-3 h-5 w-5 shrink-0"></i>
-                    Keuangan
-                </a>
-
-                <a href="#"
-                   class="group flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
-                   style="color:#c8d8ed;"
-                   onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
-                   onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';">
-                    <svg class="mr-3 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:#8a9bb5;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
-                    </svg>
-                    Manajemen Pengguna
-                    <span class="ml-auto text-xs px-1.5 py-0.5 rounded font-medium" style="background-color:#1e3060; color:#8a9bb5;">Soon</span>
+                    <i data-lucide="users" class="mr-3 h-4 w-4 shrink-0" style="{{ $isPenggunaActive ? 'color:#162447;' : 'color:#8a9bb5;' }}"></i>
+                    Pengguna
                 </a>
             @endif
 
             {{-- ---- ADMIN & STAFF_BARANG ---- --}}
             @if(auth()->user()->isAdmin() || auth()->user()->isStaffBarang())
-                <div class="pt-4 pb-1">
-                    <p class="px-3 text-xs font-semibold uppercase tracking-wider"
-                       style="color:#5a7398;">
-                        Inventaris
-                    </p>
-                </div>
-
                 @php
                     $inventarisMenu = [
                         [
                             'label' => 'Data Barang',
                             'route' => 'inventaris.barang.index',
-                            'active' => 'inventaris.barang.*'
+                            'active' => 'inventaris.barang.*',
+                            'icon' => 'package',
                         ],
                         [
                             'label' => 'Kategori',
                             'route' => 'inventaris.kategori.index',
-                            'active' => 'inventaris.kategori.*'
-                        ],
-                        [
-                            'label' => 'Supplier',
-                            'route' => 'inventaris.supplier.index',
-                            'active' => 'inventaris.supplier.*'
-                        ],
-                        [
-                            'label' => 'Barang Masuk',
-                            'route' => 'inventaris.barang_masuk.index',
-                            'active' => 'inventaris.barang_masuk.*'
-                        ],
-                        [
-                            'label' => 'Penyesuaian Stok',
-                            'route' => 'inventaris.penyesuaian_stok.index',
-                            'active' => 'inventaris.penyesuaian_stok.*'
-                        ],
-                        [
-                            'label' => 'Riwayat Stok',
-                            'route' => 'inventaris.stok_riwayat.index',
-                            'active' => 'inventaris.stok_riwayat.*'
+                            'active' => 'inventaris.kategori.*',
+                            'icon' => 'tag',
                         ],
                         [
                             'label' => 'Monitoring Stok',
                             'route' => 'inventaris.monitoring_stok.index',
-                            'active' => 'inventaris.monitoring_stok.*'
-                        ],
-                        [
-                            'label' => 'Rusak & Retur',
-                            'route' => 'rusak-retur.index',
-                            'active' => 'rusak-retur.*'
+                            'active' => 'inventaris.monitoring_stok.*',
+                            'icon' => 'bar-chart-2',
                         ],
                     ];
                 @endphp
 
                 @foreach($inventarisMenu as $menu)
-                    @php($isActive = request()->routeIs($menu['active']))
-
+                    @php
+                        $isActive = request()->routeIs($menu['active']);
+                    @endphp
                     <a href="{{ Route::has($menu['route']) ? route($menu['route']) : '#' }}"
-                       class="group flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
+                       class="group flex items-center px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ $isActive ? 'font-semibold' : '' }}"
                        @if($isActive)
                            style="background-color:#F7F1E5; color:#162447;"
                        @else
@@ -224,51 +128,64 @@
                            onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
                            onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';"
                        @endif>
-
-                        <span class="mr-3 flex h-5 w-5 shrink-0 items-center justify-center">
-                            @switch($menu['label'])
-                                @case('Data Barang')
-                                    <i data-lucide="package"></i>
-                                    @break
-                                @case('Kategori')
-                                    <i data-lucide="tags"></i>
-                                    @break
-                                @case('Supplier')
-                                    <i data-lucide="truck"></i>
-                                    @break
-                                @case('Barang Masuk')
-                                    <i data-lucide="package-plus"></i>
-                                    @break
-                                @case('Penyesuaian Stok')
-                                    <i data-lucide="clipboard-pen-line"></i>
-                                    @break
-                                @case('Riwayat Stok')
-                                    <i data-lucide="history"></i>
-                                    @break
-                                @case('Monitoring Stok')
-                                    <i data-lucide="activity"></i>
-                                    @break
-                                @case('Rusak & Retur')
-                                    <i data-lucide="package-minus"></i>
-                                    @break
-                                
-                            @endswitch
-                        </span>
-
+                        <i data-lucide="{{ $menu['icon'] }}" class="mr-3 h-4 w-4 shrink-0" style="{{ $isActive ? 'color:#162447;' : 'color:#8a9bb5;' }}"></i>
                         {{ $menu['label'] }}
                     </a>
                 @endforeach
+
+                {{-- Pengajuan Restock (belum ada route) --}}
+                <a href="#"
+                   class="group flex items-center px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150"
+                   style="color:#c8d8ed;"
+                   onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
+                   onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';">
+                    <i data-lucide="clipboard-list" class="mr-3 h-4 w-4 shrink-0" style="color:#8a9bb5;"></i>
+                    Pengajuan Restock
+                </a>
             @endif
 
-            {{-- ---- ADMIN & KASIR ---- --}}
-            @if(auth()->user()->isAdmin() || auth()->user()->isKasir())
-                <div class="pt-4 pb-1">
-                    <p class="px-3 text-xs font-semibold uppercase tracking-wider" style="color:#5a7398;">Penjualan</p>
-                </div>
+            {{-- ---- ADMIN ONLY: Transaksi & Keuangan ---- --}}
+            @if(auth()->user()->isAdmin())
+                @php
+                    $isAdminTransaksiActive = request()->routeIs('kasir.riwayat') || request()->routeIs('kasir.show');
+                @endphp
+                <a href="{{ Route::has('kasir.riwayat') ? route('kasir.riwayat') : '#' }}"
+                   class="group flex items-center px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ $isAdminTransaksiActive ? 'font-semibold' : '' }}"
+                   @if($isAdminTransaksiActive)
+                       style="background-color:#F7F1E5; color:#162447;"
+                   @else
+                       style="color:#c8d8ed;"
+                       onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
+                       onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';"
+                   @endif>
+                    <i data-lucide="shopping-cart" class="mr-3 h-4 w-4 shrink-0" style="{{ $isAdminTransaksiActive ? 'color:#162447;' : 'color:#8a9bb5;' }}"></i>
+                    Transaksi
+                </a>
 
-                @php($isPosActive = request()->routeIs('kasir.pos') || request()->routeIs('kasir.store'))
+                @php
+                    $isKeuanganActive = request()->routeIs('keuangan.*');
+                @endphp
+                <a href="{{ route('keuangan.index') }}"
+                   class="group flex items-center px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ $isKeuanganActive ? 'font-semibold' : '' }}"
+                   @if($isKeuanganActive)
+                       style="background-color:#F7F1E5; color:#162447;"
+                   @else
+                       style="color:#c8d8ed;"
+                       onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
+                       onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';"
+                   @endif>
+                    <i data-lucide="wallet" class="mr-3 h-4 w-4 shrink-0" style="{{ $isKeuanganActive ? 'color:#162447;' : 'color:#8a9bb5;' }}"></i>
+                    Keuangan
+                </a>
+            @endif
+
+            {{-- ---- KASIR ONLY: Transaksi Baru & Riwayat Transaksi ---- --}}
+            @if(auth()->user()->isKasir())
+                @php
+                    $isPosActive = request()->routeIs('kasir.pos') || request()->routeIs('kasir.store');
+                @endphp
                 <a href="{{ route('kasir.pos') }}"
-                   class="group flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
+                   class="group flex items-center px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ $isPosActive ? 'font-semibold' : '' }}"
                    @if($isPosActive)
                        style="background-color:#F7F1E5; color:#162447;"
                    @else
@@ -276,16 +193,15 @@
                        onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
                        onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';"
                    @endif>
-                    <svg class="mr-3 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                         style="{{ $isPosActive ? 'color:#162447;' : 'color:#8a9bb5;' }}">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/>
-                    </svg>
-                    Transaksi Kasir
+                    <i data-lucide="shopping-cart" class="mr-3 h-4 w-4 shrink-0" style="{{ $isPosActive ? 'color:#162447;' : 'color:#8a9bb5;' }}"></i>
+                    Transaksi Baru
                 </a>
 
-                @php($isRiwayatActive = request()->routeIs('kasir.riwayat') || request()->routeIs('kasir.show'))
+                @php
+                    $isRiwayatActive = request()->routeIs('kasir.riwayat') || request()->routeIs('kasir.show');
+                @endphp
                 <a href="{{ route('kasir.riwayat') }}"
-                   class="group flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
+                   class="group flex items-center px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ $isRiwayatActive ? 'font-semibold' : '' }}"
                    @if($isRiwayatActive)
                        style="background-color:#F7F1E5; color:#162447;"
                    @else
@@ -293,29 +209,89 @@
                        onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
                        onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';"
                    @endif>
-                    <svg class="mr-3 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                         style="{{ $isRiwayatActive ? 'color:#162447;' : 'color:#8a9bb5;' }}">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                    Riwayat Penjualan
+                    <i data-lucide="receipt" class="mr-3 h-4 w-4 shrink-0" style="{{ $isRiwayatActive ? 'color:#162447;' : 'color:#8a9bb5;' }}"></i>
+                    Riwayat Transaksi
+                </a>
+            @endif
+
+            {{-- ---- ADMIN & STAFF_BARANG: Rusak dan Retur ---- --}}
+            @if(auth()->user()->isAdmin() || auth()->user()->isStaffBarang())
+                @php
+                    $isRusakActive = request()->routeIs('rusak-retur.*');
+                @endphp
+                <a href="{{ Route::has('rusak-retur.index') ? route('rusak-retur.index') : '#' }}"
+                   class="group flex items-center px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ $isRusakActive ? 'font-semibold' : '' }}"
+                   @if($isRusakActive)
+                       style="background-color:#F7F1E5; color:#162447;"
+                   @else
+                       style="color:#c8d8ed;"
+                       onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
+                       onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';"
+                   @endif>
+                    <i data-lucide="alert-triangle" class="mr-3 h-4 w-4 shrink-0" style="{{ $isRusakActive ? 'color:#162447;' : 'color:#8a9bb5;' }}"></i>
+                    Rusak dan Retur
+                </a>
+            @endif
+
+            {{-- ---- ADMIN ONLY: Laporan & Log Aktivitas ---- --}}
+            @if(auth()->user()->isAdmin())
+                @php
+                    $isLaporanActive = request()->routeIs('admin.laporan.*');
+                @endphp
+                <a href="{{ route('admin.laporan.index') }}"
+                   class="group flex items-center px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ $isLaporanActive ? 'font-semibold' : '' }}"
+                   @if($isLaporanActive)
+                       style="background-color:#F7F1E5; color:#162447;"
+                   @else
+                       style="color:#c8d8ed;"
+                       onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
+                       onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';"
+                   @endif>
+                    <i data-lucide="file-text" class="mr-3 h-4 w-4 shrink-0" style="{{ $isLaporanActive ? 'color:#162447;' : 'color:#8a9bb5;' }}"></i>
+                    Laporan
+                </a>
+
+                @php
+                    $isLogActive = request()->routeIs('admin.log-aktivitas.*');
+                @endphp
+                <a href="{{ route('admin.log-aktivitas.index') }}"
+                   class="group flex items-center px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ $isLogActive ? 'font-semibold' : '' }}"
+                   @if($isLogActive)
+                       style="background-color:#F7F1E5; color:#162447;"
+                   @else
+                       style="color:#c8d8ed;"
+                       onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
+                       onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';"
+                   @endif>
+                    <i data-lucide="activity" class="mr-3 h-4 w-4 shrink-0" style="{{ $isLogActive ? 'color:#162447;' : 'color:#8a9bb5;' }}"></i>
+                    Log Aktivitas
                 </a>
             @endif
 
         </nav>
 
-        {{-- Logout --}}
-        <div class="shrink-0 p-4" style="border-top:1px solid #1e3060;">
+        {{-- User Profile & Logout (Bottom Sidebar) --}}
+        <div class="shrink-0 px-4 py-4 flex items-center justify-between gap-2" style="border-top:1px solid #1e3060;">
+            <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 min-w-0 flex-1 group">
+                <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shrink-0"
+                     style="background-color:#F7F1E5; color:#162447;">
+                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                </div>
+                <div class="min-w-0 flex-1">
+                    <p class="text-sm font-semibold truncate group-hover:underline" style="color:#F7F1E5;">{{ auth()->user()->name }}</p>
+                    <p class="text-xs leading-tight" style="color:#8a9bb5;">Profil</p>
+                </div>
+            </a>
+
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit"
-                        class="w-full flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer"
-                        style="color:#c8d8ed;"
-                        onmouseover="this.style.backgroundColor='#7f1d1d'; this.style.color='#fecaca';"
-                        onmouseout="this.style.backgroundColor=''; this.style.color='#c8d8ed';">
-                    <svg class="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                    </svg>
-                    Keluar
+                        title="Keluar"
+                        class="p-2 rounded-lg transition-colors cursor-pointer"
+                        style="color:#8a9bb5;"
+                        onmouseover="this.style.backgroundColor='#1e3060'; this.style.color='#F7F1E5';"
+                        onmouseout="this.style.backgroundColor=''; this.style.color='#8a9bb5';">
+                    <i data-lucide="log-out" class="h-4 w-4"></i>
                 </button>
             </form>
         </div>
@@ -326,55 +302,23 @@
     ============================================================ --}}
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
 
-        {{-- Top Navbar --}}
-        <header class="h-16 flex items-center px-4 lg:px-6 shrink-0 z-10"
-                style="background-color:#ffffff; border-bottom:1px solid #EDE5D4;">
-            {{-- Hamburger (mobile) --}}
+        {{-- Mobile Header Trigger (hanya tampil di layar kecil) --}}
+        <div class="lg:hidden flex items-center justify-between px-4 py-3 shrink-0"
+             style="background-color:#162447; color:#F7F1E5;">
             <button @click="sidebarOpen = !sidebarOpen"
-                    class="p-2 rounded-md focus:outline-none lg:hidden mr-3 cursor-pointer transition-colors"
-                    style="color:#162447;"
-                    onmouseover="this.style.backgroundColor='#F7F1E5';"
-                    onmouseout="this.style.backgroundColor='';">
+                    class="p-2 rounded-lg focus:outline-none cursor-pointer transition-colors"
+                    style="color:#F7F1E5;">
                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
             </button>
-
-            {{-- Page Title --}}
-            <div class="flex-1">
-                <h1 class="text-base font-semibold" style="color:#162447;">@yield('page-title', 'Dashboard')</h1>
-                @hasSection('breadcrumb')
-                    <p class="text-xs" style="color:#8a9bb5;">@yield('breadcrumb')</p>
-                @endif
-            </div>
-
-            {{-- Right side --}}
-            <div class="flex items-center space-x-3">
-                <div class="hidden md:block text-right">
-                    <p class="text-xs" style="color:#8a9bb5;">{{ now()->translatedFormat('l, d F Y') }}</p>
-                    <p class="text-xs font-semibold" style="color:#162447;">{{ now()->format('H:i') }} WIB</p>
-                </div>
-
-                <a href="{{ route('profile.edit') }}"
-                   class="flex items-center space-x-2 px-3 py-1.5 rounded-lg transition-colors"
-                   style="border:1px solid #EDE5D4;"
-                   onmouseover="this.style.backgroundColor='#F7F1E5';"
-                   onmouseout="this.style.backgroundColor='';">
-                    <div class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs"
-                         style="background-color:#162447; color:#F7F1E5;">
-                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                    </div>
-                    <div class="hidden sm:block text-left">
-                        <p class="text-xs font-semibold leading-tight" style="color:#162447;">{{ auth()->user()->name }}</p>
-                        <p class="text-xs leading-tight" style="color:#8a9bb5;">{{ auth()->user()->email }}</p>
-                    </div>
-                </a>
-            </div>
-        </header>
+            <span class="text-sm font-bold">Shanum Elektrik</span>
+            <div class="w-8"></div>
+        </div>
 
         {{-- Flash Messages --}}
         @if(session('success'))
-            <div class="mx-4 lg:mx-6 mt-4 flex items-center gap-3 text-sm px-4 py-3 rounded-xl"
+            <div class="mx-6 lg:mx-8 mt-5 flex items-center gap-3 text-sm px-4 py-3 rounded-xl"
                  style="background-color:#ecfdf5; border:1px solid #6ee7b7; color:#065f46;">
                 <svg class="h-5 w-5 shrink-0" fill="currentColor" viewBox="0 0 20 20" style="color:#059669;">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
@@ -384,7 +328,7 @@
         @endif
 
         @if(session('error'))
-            <div class="mx-4 lg:mx-6 mt-4 flex items-center gap-3 text-sm px-4 py-3 rounded-xl"
+            <div class="mx-6 lg:mx-8 mt-5 flex items-center gap-3 text-sm px-4 py-3 rounded-xl"
                  style="background-color:#fef2f2; border:1px solid #fca5a5; color:#991b1b;">
                 <svg class="h-5 w-5 shrink-0" fill="currentColor" viewBox="0 0 20 20" style="color:#dc2626;">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
@@ -394,7 +338,7 @@
         @endif
 
         {{-- Page Content --}}
-        <main class="flex-1 overflow-y-auto p-4 lg:p-6">
+        <main class="flex-1 overflow-y-auto p-6 lg:p-8">
             @yield('content')
         </main>
     </div>

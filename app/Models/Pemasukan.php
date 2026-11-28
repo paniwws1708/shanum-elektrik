@@ -9,7 +9,7 @@ class Pemasukan extends Model
     // Pilihan sumber pemasukan (kunci = isi database, nilai = tulisan di layar).
     public const SUMBER = [
         'penjualan_harian' => 'Penjualan Harian',
-        'lainnya'          => 'Lainnya',
+        'lainnya' => 'Lainnya',
     ];
 
     // Kolom yang boleh diisi lewat create([...]).
@@ -20,9 +20,9 @@ class Pemasukan extends Model
 
     // Ubah tipe data otomatis saat dibaca dari database.
     protected $casts = [
-        'tanggal'           => 'date',
+        'tanggal' => 'date',
         'tanggal_penjualan' => 'date',
-        'jumlah'            => 'decimal:2',
+        'jumlah' => 'decimal:2',
     ];
 
     // Relasi: pemasukan dicatat oleh satu user.
