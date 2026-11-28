@@ -5,137 +5,189 @@
 @section('breadcrumb', 'Inventaris / Barang')
 
 @section('content')
-    <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    {{-- Page Header --}}
+    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <h2 class="text-xl font-bold" style="color:#162447;">Daftar Barang</h2>
-            <p class="mt-1 text-sm text-gray-500">Kelola informasi barang dan pantau kondisi stok.</p>
+            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight" style="color:#162447;">Data Barang</h1>
+            <p class="mt-1 text-sm" style="color:#5a7398;">Kelola barang, harga, lokasi penyimpanan, dan stok</p>
         </div>
-        <a href="{{ route('inventaris.barang.create') }}" class="rounded-lg px-4 py-2.5 text-sm font-semibold text-white shadow-sm" style="background-color:#162447;">+ Tambah Barang</a>
+        <a href="{{ route('inventaris.barang.create') }}"
+           class="inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm transition-colors"
+           style="background-color:#162447; color:#F7F1E5;"
+           onmouseover="this.style.backgroundColor='#1e3060';"
+           onmouseout="this.style.backgroundColor='#162447';">
+            + Tambah barang
+        </a>
     </div>
 
-    <form method="GET" action="{{ route('inventaris.barang.index') }}" class="mb-4 flex flex-wrap gap-2 rounded-xl bg-white p-4 shadow-sm">
-        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari kode atau nama barang" class="min-w-56 flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
+    {{-- Main Card (Filter + Table + Pagination) --}}
+    <div class="bg-white rounded-2xl p-5" style="border:1px solid #EDE5D4;">
 
-        <select name="kategori_id" class="rounded-lg border border-gray-300 px-3 py-2 text-sm">
-            <option value="">Semua Kategori</option>
-            @foreach($kategoris as $kategori)
-                <option value="{{ $kategori->id }}" @selected(request('kategori_id') == $kategori->id)>
-                    {{ $kategori->nama }}
-                </option>
-            @endforeach
-        </select>
+        {{-- Filter Bar --}}
+        <form method="GET" action="{{ route('inventaris.barang.index') }}" class="mb-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-end">
+            <div class="lg:col-span-5">
+                <label class="block text-xs font-medium mb-1.5" style="color:#5a7398;">Cari barang</label>
+                <input type="text"
+                       name="search"
+                       value="{{ request('search') }}"
+                       placeholder="Nama atau kode barang"
+                       class="w-full rounded-xl px-3.5 py-2 text-sm focus:outline-none"
+                       style="border:1.5px solid #DDD3BE; color:#162447; background-color:#ffffff;"
+                       onfocus="this.style.borderColor='#162447';"
+                       onblur="this.style.borderColor='#DDD3BE';">
+            </div>
 
-        <select name="status" class="rounded-lg border border-gray-300 px-3 py-2 text-sm">
-            <option value="">Semua Status</option>
-            <option value="menipis" @selected(request('status') === 'menipis')>Menipis</option>
-            <option value="habis" @selected(request('status') === 'habis')>Habis</option>
-            <option value="aman" @selected(request('status') === 'aman')>Aman</option>
-        </select>
+            <div class="lg:col-span-3">
+                <label class="block text-xs font-medium mb-1.5" style="color:#5a7398;">Filter kategori</label>
+                <select name="kategori_id"
+                        class="w-full rounded-xl px-3.5 py-2 text-sm focus:outline-none"
+                        style="border:1.5px solid #DDD3BE; color:#162447; background-color:#ffffff;">
+                    <option value="">Semua kategori</option>
+                    @foreach($kategoris as $kategori)
+                        <option value="{{ $kategori->id }}" @selected(request('kategori_id') == $kategori->id)>
+                            {{ $kategori->nama }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
 
-        <button class="rounded-lg px-4 py-2 text-sm font-semibold text-white" style="background-color:#162447;">Terapkan</button>
+            <div class="lg:col-span-2">
+                <label class="block text-xs font-medium mb-1.5" style="color:#5a7398;">Kondisi stok</label>
+                <select name="status"
+                        class="w-full rounded-xl px-3.5 py-2 text-sm focus:outline-none"
+                        style="border:1.5px solid #DDD3BE; color:#162447; background-color:#ffffff;">
+                    <option value="">Semua</option>
+                    <option value="menipis" @selected(request('status') === 'menipis')>Menipis</option>
+                    <option value="habis" @selected(request('status') === 'habis')>Habis</option>
+                    <option value="aman" @selected(request('status') === 'aman')>Aman</option>
+                </select>
+            </div>
 
-        @if(request()->hasAny(['search', 'kategori_id', 'status']))
-            <a href="{{ route('inventaris.barang.index') }}" class="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600">Reset</a>
-        @endif
-    </form>
+            <div class="lg:col-span-2 flex items-center gap-2">
+                <button type="submit"
+                        class="flex-1 rounded-xl px-4 py-2 text-sm font-semibold transition-colors cursor-pointer"
+                        style="background-color:#EDE5D4; color:#162447;"
+                        onmouseover="this.style.backgroundColor='#DDD3BE';"
+                        onmouseout="this.style.backgroundColor='#EDE5D4';">
+                    Terapkan
+                </button>
 
-    <div class="overflow-hidden rounded-xl bg-white shadow-sm">
+                @if(request()->hasAny(['search', 'kategori_id', 'status']))
+                    <a href="{{ route('inventaris.barang.index') }}"
+                       class="rounded-xl px-3 py-2 text-sm font-medium transition-colors"
+                       style="border:1px solid #DDD3BE; color:#5a7398;"
+                       onmouseover="this.style.backgroundColor='#FAF6EE';"
+                       onmouseout="this.style.backgroundColor='';">
+                        Reset
+                    </a>
+                @endif
+            </div>
+        </form>
+
+        {{-- Table --}}
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 text-sm">
-                <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
-                    <tr>
-                        <th class="px-4 py-3 text-left">Foto</th>
-                        <th class="px-4 py-3 text-left">Kode Barang</th>
-                        <th class="px-4 py-3 text-left">Nama Barang</th>
-                        <th class="px-4 py-3 text-left">Kategori</th>
-                        <th class="px-4 py-3 text-left">Lokasi Penyimpanan</th>
-                        <th class="px-4 py-3 text-right">Harga Modal</th>
-                        <th class="px-4 py-3 text-right">Harga Jual</th>
-                        <th class="px-4 py-3 text-center">Stok</th>
-                        <th class="px-4 py-3 text-center">Aksi</th>
+            <table class="min-w-full text-sm">
+                <thead>
+                    <tr class="text-left text-xs" style="color:#8a9bb5; border-bottom:1px solid #EDE5D4;">
+                        <th class="pb-3 pr-3 font-medium">Foto</th>
+                        <th class="pb-3 px-3 font-medium">Kode</th>
+                        <th class="pb-3 px-3 font-medium">Nama barang</th>
+                        <th class="pb-3 px-3 font-medium">Kategori</th>
+                        <th class="pb-3 px-3 font-medium text-right">Harga modal</th>
+                        <th class="pb-3 px-3 font-medium text-right">Harga jual</th>
+                        <th class="pb-3 px-3 font-medium text-center">Stok</th>
+                        <th class="pb-3 px-3 font-medium">Lokasi</th>
+                        <th class="pb-3 pl-3 font-medium text-center">Aksi</th>
                     </tr>
                 </thead>
 
-                <tbody class="divide-y divide-gray-100">
+                <tbody class="divide-y" style="border-color:#F7F1E5;">
                     @forelse($barangs as $barang)
                         @php($stok = (int) $barang->stok)
 
-                        <tr class="hover:bg-gray-50">
-                            <td class="whitespace-nowrap px-4 py-3">
+                        <tr class="transition-colors"
+                            onmouseover="this.style.backgroundColor='#FAF6EE';"
+                            onmouseout="this.style.backgroundColor='';">
+                            <td class="whitespace-nowrap py-3 pr-3">
                                 @if($barang->foto)
                                     <img
                                         src="{{ asset('storage/' . $barang->foto) }}"
                                         alt="{{ $barang->nama_barang }}"
-                                        class="h-12 w-12 rounded-lg border border-gray-200 object-cover"
+                                        class="h-10 w-10 rounded-xl object-cover"
+                                        style="border:1px solid #EDE5D4;"
                                         loading="lazy"
                                         onerror="this.style.display='none';"
                                     >
                                 @else
-                                    <div class="flex h-12 w-12 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-[10px] text-gray-400">
-                                        No Foto
+                                    <div class="flex h-10 w-10 items-center justify-center rounded-xl"
+                                         style="background-color:#F7F1E5; color:#5a7398;">
+                                        <i data-lucide="package" class="w-4 h-4"></i>
                                     </div>
                                 @endif
                             </td>
 
-                            <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-700">
+                            <td class="whitespace-nowrap py-3 px-3 text-xs font-medium" style="color:#8a9bb5;">
                                 {{ $barang->kode_barang ?: '-' }}
                             </td>
 
-                            <td class="px-4 py-3 font-semibold text-gray-800">
+                            <td class="py-3 px-3 font-semibold" style="color:#162447;">
                                 {{ $barang->nama_barang }}
                             </td>
 
-                            <td class="px-4 py-3 text-gray-600">
+                            <td class="py-3 px-3" style="color:#5a7398;">
                                 {{ $barang->kategori->nama ?? '-' }}
                             </td>
 
-                            <td class="px-4 py-3 text-gray-600">
+                            <td class="whitespace-nowrap py-3 px-3 text-right tabular-nums" style="color:#162447;">
+                                Rp {{ number_format($barang->harga_modal, 0, ',', '.') }}
+                            </td>
+
+                            <td class="whitespace-nowrap py-3 px-3 text-right tabular-nums" style="color:#162447;">
+                                Rp {{ number_format($barang->harga_jual, 0, ',', '.') }}
+                            </td>
+
+                            <td class="whitespace-nowrap py-3 px-3 text-center">
+                                @if($stok <= 0)
+                                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                                          style="background-color:#fee2e2; color:#991b1b;">
+                                        {{ $stok }} Habis
+                                    </span>
+                                @elseif($stok <= (int) $barang->stok_minimum)
+                                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                                          style="background-color:#fee2e2; color:#991b1b;">
+                                        {{ $stok }} Menipis
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                                          style="background-color:#dcfce7; color:#166534;">
+                                        {{ $stok }} Aman
+                                    </span>
+                                @endif
+                            </td>
+
+                            <td class="py-3 px-3" style="color:#5a7398;">
                                 {{ $barang->lokasi_penyimpanan ?: '-' }}
                             </td>
 
-                            <td class="whitespace-nowrap px-4 py-3 text-right text-gray-700">
-    Rp{{ number_format($barang->harga_modal, 0, ',', '.') }}
-</td>
-
-                            <td class="whitespace-nowrap px-4 py-3 text-right text-gray-700">
-                                Rp{{ number_format($barang->harga_jual, 0, ',', '.') }}
-                            </td>
-
-                            <td class="whitespace-nowrap px-4 py-3 text-center">
-                                @if($stok <= 0)
-                                    <span class="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
-                                        Stok Habis
-                                    </span>
-                                @elseif($stok <= (int) $barang->stok_minimum)
-                                    <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
-                                        Stok Menipis
-                                    </span>
-                                @else
-                                    <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
-                                        Stok Aman
-                                    </span>
-                                @endif
-
-                                <div class="mt-1 text-xs text-gray-500">
-                                    {{ $stok }} unit · Min. {{ $barang->stok_minimum }}
-                                </div>
-                            </td>
-
-                            <td class="whitespace-nowrap px-4 py-3 text-center">
-                                <a href="{{ route('inventaris.barang.edit', $barang) }}" class="font-medium text-blue-700 hover:underline">
+                            <td class="whitespace-nowrap py-3 pl-3 text-center">
+                                <a href="{{ route('inventaris.barang.edit', $barang) }}"
+                                   class="text-xs font-semibold underline"
+                                   style="color:#162447;">
                                     Edit
                                 </a>
 
                                 <form
                                     action="{{ route('inventaris.barang.destroy', $barang) }}"
                                     method="POST"
-                                    class="ml-2 inline"
+                                    class="ml-2.5 inline"
                                     onsubmit="return confirm('Yakin ingin menghapus barang ini?')"
                                 >
                                     @csrf
                                     @method('DELETE')
 
-                                    <button type="submit" class="font-medium text-red-600 hover:underline">
+                                    <button type="submit"
+                                            class="text-xs font-semibold underline cursor-pointer"
+                                            style="color:#b91c1c;">
                                         Hapus
                                     </button>
                                 </form>
@@ -143,7 +195,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="px-4 py-10 text-center text-gray-500">
+                            <td colspan="9" class="px-4 py-10 text-center text-sm" style="color:#8a9bb5;">
                                 Belum ada data barang.
                             </td>
                         </tr>
@@ -151,9 +203,12 @@
                 </tbody>
             </table>
         </div>
-    </div>
 
-    <div class="mt-4">
-        {{ $barangs->links() }}
+        {{-- Pagination --}}
+        @if($barangs->hasPages())
+            <div class="mt-4 pt-4" style="border-top:1px solid #EDE5D4;">
+                {{ $barangs->links() }}
+            </div>
+        @endif
     </div>
 @endsection

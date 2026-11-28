@@ -61,16 +61,16 @@ class PenjualanHarianController extends Controller
         }
 
         Pemasukan::create([
-            'user_id'           => auth()->id(),
-            'tanggal'           => $tanggal,
-            'sumber'            => 'penjualan_harian',
+            'user_id' => auth()->id(),
+            'tanggal' => $tanggal,
+            'sumber' => 'penjualan_harian',
             'tanggal_penjualan' => $tanggal, // kunci penghubung ke data transaksi
-            'jumlah'            => $rekap->total,
-            'jumlah_transaksi'  => $rekap->jumlah_transaksi,
-            'keterangan'        => 'Penjualan harian ' . $tanggal . ' (' . $rekap->jumlah_transaksi . ' transaksi)',
+            'jumlah' => $rekap->total,
+            'jumlah_transaksi' => $rekap->jumlah_transaksi,
+            'keterangan' => 'Penjualan harian '.$tanggal.' ('.$rekap->jumlah_transaksi.' transaksi)',
         ]);
 
         return redirect()->route('keuangan.penjualan-harian.index')
-            ->with('success', 'Penjualan tanggal ' . $tanggal . ' berhasil dicatat sebagai pemasukan.');
+            ->with('success', 'Penjualan tanggal '.$tanggal.' berhasil dicatat sebagai pemasukan.');
     }
 }

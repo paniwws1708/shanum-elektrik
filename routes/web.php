@@ -1,17 +1,19 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\KasirController;
-use App\Http\Controllers\LaporanController;
-use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BarangRusakReturController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Inventaris\BarangController;
+use App\Http\Controllers\Inventaris\KategoriController;
+use App\Http\Controllers\KasirController;
 use App\Http\Controllers\KeuanganController;
+use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\PemasukanController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\PenjualanHarianController;
+use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,18 +34,6 @@ Route::middleware('guest')->group(function () {
     // Login
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
-
-    // Forgot Password - via Email
-    Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotForm'])->name('password.request');
-    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
-
-    // Reset Password - via Email Link
-    Route::get('/password/reset/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
-    Route::post('/password/reset', [ForgotPasswordController::class, 'resetPassword'])->name('password.update');
-
-    // Direct Reset Password - Offline mode
-    Route::get('/direct-reset-password', [ForgotPasswordController::class, 'showDirectResetForm'])->name('password.direct');
-    Route::post('/direct-reset-password', [ForgotPasswordController::class, 'directResetPassword'])->name('password.direct.update');
 });
 
 // ================================================================
@@ -76,6 +66,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
         Route::get('/laporan/export-excel', [LaporanController::class, 'exportExcel'])->name('laporan.excel');
         Route::get('/laporan/cetak-pdf', [LaporanController::class, 'cetakPdf'])->name('laporan.pdf');
+
+        // Log Aktivitas (Khusus Admin)
+        Route::get('/log-aktivitas', [ActivityLogController::class, 'index'])->name('log-aktivitas.index');
     });
 
     // ================================================================
@@ -93,26 +86,9 @@ Route::middleware('auth')->group(function () {
         ->as('inventaris.')
         ->group(function () {
             // Barang CRUD
-            Route::resource('barang', App\Http\Controllers\Inventaris\BarangController::class);
+            Route::resource('barang', BarangController::class);
             // Kategori CRUD (tanpa show)
-            Route::resource('kategori', App\Http\Controllers\Inventaris\KategoriController::class)->except(['show']);
-            // Supplier CRUD (tanpa show)
-            Route::resource('supplier', App\Http\Controllers\Inventaris\SupplierController::class)->except(['show']);
-            // Barang Masuk
-            Route::get('barang-masuk', [App\Http\Controllers\Inventaris\BarangMasukController::class, 'index'])->name('barang_masuk.index');
-            Route::get('barang-masuk/create', [App\Http\Controllers\Inventaris\BarangMasukController::class, 'create'])->name('barang_masuk.create');
-            Route::post('barang-masuk', [App\Http\Controllers\Inventaris\BarangMasukController::class, 'store'])->name('barang_masuk.store');
-
-            // Penyesuaian Stok
-            Route::get('penyesuaian-stok', [App\Http\Controllers\Inventaris\PenyesuaianStokController::class, 'index'])
-                ->name('penyesuaian_stok.index');
-            Route::get('penyesuaian-stok/create', [App\Http\Controllers\Inventaris\PenyesuaianStokController::class, 'create'])
-                ->name('penyesuaian_stok.create');
-            Route::post('penyesuaian-stok', [App\Http\Controllers\Inventaris\PenyesuaianStokController::class, 'store'])
-                ->name('penyesuaian_stok.store');
-
-            // Riwayat Stok (read-only)
-            Route::get('stok-riwayat', [App\Http\Controllers\Inventaris\StokRiwayatController::class, 'index'])->name('stok_riwayat.index');
+            Route::resource('kategori', KategoriController::class)->except(['show']);
 
             // Monitoring Kondisi Stok (Admin & Staff Barang)
             Route::get('monitoring-stok', [LaporanController::class, 'monitoringStok'])->name('monitoring_stok.index');
@@ -127,6 +103,10 @@ Route::middleware('auth')->group(function () {
         // ── Modul Transaksi Kasir (POS) — Stevani ──
         Route::get('/transaksi', [KasirController::class, 'pos'])->name('pos');
         Route::post('/transaksi', [KasirController::class, 'store'])->name('store');
+    });
+
+    // Riwayat & Detail Transaksi (Admin & Kasir)
+    Route::middleware('role:admin,kasir')->prefix('kasir')->name('kasir.')->group(function () {
         Route::get('/riwayat', [KasirController::class, 'riwayat'])->name('riwayat');
         Route::get('/riwayat/{transaksi}', [KasirController::class, 'show'])->name('show');
     });
@@ -143,15 +123,12 @@ Route::middleware('auth')
         Route::post('/', [BarangRusakReturController::class, 'store'])->name('store');
     });
 
-
-
-
 // ===== Modul Keuangan (HANYA ADMIN) =====
 // Isi array middleware:
 //   'auth'     = harus login dulu
 //   function   = pengecekan role. Selain admin langsung kena error 403.
 // Pengecekan ditaruh di sini, jadi semua route di dalam grup otomatis terlindungi.
-  Route::middleware('auth', 'role:admin')
+Route::middleware('auth', 'role:admin')
     ->prefix('keuangan')     // URL diawali /keuangan
     ->name('keuangan.')      // nama route diawali keuangan.
     ->group(function () {

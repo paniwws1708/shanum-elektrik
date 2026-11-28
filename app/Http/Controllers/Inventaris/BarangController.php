@@ -94,7 +94,7 @@ class BarangController extends Controller
             if ($request->hasFile('foto')) {
                 $foto = $request->file('foto')->store('barang', 'public');
 
-                if (!$foto) {
+                if (! $foto) {
                     throw new \RuntimeException('Foto barang gagal disimpan.');
                 }
 
@@ -171,7 +171,7 @@ class BarangController extends Controller
                 $fotoBaru = $request->file('foto')
                     ->store('barang', 'public');
 
-                if (!$fotoBaru) {
+                if (! $fotoBaru) {
                     throw new \RuntimeException('Foto barang gagal disimpan.');
                 }
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBarangRusakReturRequest;
+use App\Models\ActivityLog;
 use App\Models\Barang;            // CEK: pastikan model Barang ada di App\Models
 use App\Models\BarangRusakRetur;
 use Illuminate\Http\Request;
@@ -28,6 +29,7 @@ class BarangRusakReturController extends Controller implements HasMiddleware
                     403,
                     'Anda tidak memiliki akses ke halaman ini.'
                 );
+
                 return $next($request);
             }),
         ];
@@ -53,15 +55,17 @@ class BarangRusakReturController extends Controller implements HasMiddleware
             $cari = $request->cari;
             $query->whereHas('barang', function ($q) use ($cari) {
                 $q->where('nama_barang', 'like', "%{$cari}%")
-                  ->orWhere('kode_barang', 'like', "%{$cari}%");
+                    ->orWhere('kode_barang', 'like', "%{$cari}%");
             });
         }
 
-        // paginate(10) = 10 data per halaman.
+        // paginate(5) = 5 data per halaman sesuai desain PDF.
         // withQueryString() = filter tidak hilang saat pindah halaman.
-        $data = $query->paginate(10)->withQueryString();
+        $data = $query->paginate(5)->withQueryString();
+        $barangs = Barang::orderBy('nama_barang')
+            ->get(['id', 'kode_barang', 'nama_barang', 'stok']);
 
-        return view('barang-rusak-retur.index', compact('data'));
+        return view('barang-rusak-retur.index', compact('data', 'barangs'));
     }
 
     /**
@@ -106,14 +110,14 @@ class BarangRusakReturController extends Controller implements HasMiddleware
                         ]);
                     }
                     $perubahan = -$data['jumlah'];   // stok berkurang
-                } elseif (!empty($data['kembali_ke_stok'])) {
+                } elseif (! empty($data['kembali_ke_stok'])) {
                     $perubahan = $data['jumlah'];    // retur & masih bagus: stok bertambah
                 }
 
                 // Hubungkan dengan transaksi penjualan (khusus retur) lewat no_invoice.
                 // Kita hanya MEMBACA tabel transaksis, tidak mengubahnya.
                 $transaksiId = null;
-                if (!empty($data['no_invoice'])) {
+                if (! empty($data['no_invoice'])) {
                     $transaksiId = DB::table('transaksis')
                         ->where('no_invoice', $data['no_invoice'])
                         ->value('id');
@@ -121,17 +125,17 @@ class BarangRusakReturController extends Controller implements HasMiddleware
 
                 // 1) Simpan catatan rusak/retur.
                 $catatan = BarangRusakRetur::create([
-                    'barang_id'       => $barang->id,
-                    'user_id'         => auth()->id(),   // user yang sedang login
-                    'transaksi_id'    => $transaksiId,
-                    'tipe'            => $data['tipe'],
-                    'jumlah'          => $data['jumlah'],
-                    'tanggal'         => $data['tanggal'],
-                    'nama_pembeli'    => $data['nama_pembeli'] ?? null,
+                    'barang_id' => $barang->id,
+                    'user_id' => auth()->id(),   // user yang sedang login
+                    'transaksi_id' => $transaksiId,
+                    'tipe' => $data['tipe'],
+                    'jumlah' => $data['jumlah'],
+                    'tanggal' => $data['tanggal'],
+                    'nama_pembeli' => $data['nama_pembeli'] ?? null,
                     // Untuk "rusak", kolom ini selalu false.
-                    'kembali_ke_stok' => $data['tipe'] === 'retur' && !empty($data['kembali_ke_stok']),
-                    'alasan'          => $data['alasan'],
-                    'foto_bukti'      => $fotoPath,
+                    'kembali_ke_stok' => $data['tipe'] === 'retur' && ! empty($data['kembali_ke_stok']),
+                    'alasan' => $data['alasan'],
+                    'foto_bukti' => $fotoPath,
                 ]);
 
                 // 2) Ubah stok barang & catat ke stok_riwayats (hanya jika stok benar-benar berubah).
@@ -144,17 +148,17 @@ class BarangRusakReturController extends Controller implements HasMiddleware
                     // Tabel stok_riwayats sudah ada (milik modul stok).
                     // Kita pakai tabel yang sama agar muncul di menu "Riwayat Stok".
                     DB::table('stok_riwayats')->insert([
-                        'barang_id'        => $barang->id,
-                        'user_id'          => auth()->id(),
-                        'tipe'             => $data['tipe'],              // 'rusak' atau 'retur'
+                        'barang_id' => $barang->id,
+                        'user_id' => auth()->id(),
+                        'tipe' => $data['tipe'],              // 'rusak' atau 'retur'
                         'jumlah_perubahan' => $perubahan,
-                        'stok_sebelum'     => $stokSebelum,
-                        'stok_sesudah'     => $stokSesudah,
-                        'keterangan'       => ucfirst($data['tipe']) . ': ' . $data['alasan'],
-                        'referensi_type'   => BarangRusakRetur::class,    // dari tabel mana asalnya
-                        'referensi_id'     => $catatan->id,               // id catatan kita
-                        'created_at'       => now(),
-                        'updated_at'       => now(),
+                        'stok_sebelum' => $stokSebelum,
+                        'stok_sesudah' => $stokSesudah,
+                        'keterangan' => ucfirst($data['tipe']).': '.$data['alasan'],
+                        'referensi_type' => BarangRusakRetur::class,    // dari tabel mana asalnya
+                        'referensi_id' => $catatan->id,               // id catatan kita
+                        'created_at' => now(),
+                        'updated_at' => now(),
                     ]);
                 }
             });
@@ -165,8 +169,14 @@ class BarangRusakReturController extends Controller implements HasMiddleware
             throw $e;
         }
 
+        ActivityLog::catat(
+            'Rusak & Retur',
+            'create',
+            "Mencatat barang {$data['tipe']} sejumlah {$data['jumlah']} pcs ({$data['alasan']})"
+        );
+
         return redirect()
             ->route('rusak-retur.index')
-            ->with('success', 'Catatan barang ' . $data['tipe'] . ' berhasil disimpan.');
+            ->with('success', 'Catatan barang '.$data['tipe'].' berhasil disimpan.');
     }
 }

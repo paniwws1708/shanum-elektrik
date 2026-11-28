@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('no_invoice')->unique();
 
             $table->foreignId('user_id')
-                  ->constrained('users');
-            
+                ->constrained('users');
+
             $table->decimal('total_harga', 12, 2);
             $table->decimal('bayar', 12, 2);
             $table->decimal('kembalian', 12, 2);

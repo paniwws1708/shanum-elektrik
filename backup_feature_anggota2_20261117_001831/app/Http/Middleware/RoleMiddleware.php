@@ -13,16 +13,16 @@ class RoleMiddleware
      *
      * Usage in routes: middleware('role:admin') or middleware('role:admin,staff_barang')
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      * @param  string  ...$roles  One or more roles allowed to access
      */
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        if (!$request->user()) {
+        if (! $request->user()) {
             return redirect()->route('login');
         }
 
-        if (!in_array($request->user()->role, $roles)) {
+        if (! in_array($request->user()->role, $roles)) {
             abort(403, 'Anda tidak memiliki hak akses untuk halaman ini.');
         }
 

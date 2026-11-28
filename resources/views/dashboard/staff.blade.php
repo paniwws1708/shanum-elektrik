@@ -5,114 +5,144 @@
 @section('breadcrumb', 'Shanum Elektrik / Dashboard Staff Barang')
 
 @section('content')
-@php
-    $user = auth()->user();
-    $hour = now()->hour;
-    $greeting = $hour < 11 ? 'Selamat Pagi' : ($hour < 15 ? 'Selamat Siang' : ($hour < 18 ? 'Selamat Sore' : 'Selamat Malam'));
-@endphp
-
-{{-- Greeting Banner --}}
-<div class="mb-6 rounded-2xl p-6 shadow-sm text-white overflow-hidden relative"
-     style="background: linear-gradient(135deg, #162447 0%, #0d1a35 100%);">
-    <div class="relative z-10 flex items-center justify-between">
-        <div>
-            <p class="text-sm font-medium mb-1" style="color:#c8d8ed;">{{ $greeting }},</p>
-            <h2 class="text-2xl font-bold text-white">{{ $user->name }} 👋</h2>
-            <p class="text-sm mt-2" style="color:#8a9bb5;">
-                Login sebagai
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ml-1"
-                      style="background-color:#F7F1E5; color:#162447;">
-                    Staff Barang
-                </span>
-            </p>
-        </div>
-        <div class="hidden md:flex items-center justify-center w-20 h-20 rounded-2xl opacity-10"
-             style="background-color:#F7F1E5;">
-            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-            </svg>
-        </div>
+{{-- Page Header --}}
+<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight" style="color:#162447;">Dashboard Staff Barang</h1>
+        <p class="mt-1 text-sm" style="color:#5a7398;">
+            Kondisi stok barang &middot; {{ now()->translatedFormat('l, d F Y') }}
+        </p>
     </div>
-    <div class="absolute -right-8 -top-8 w-40 h-40 rounded-full opacity-5" style="background-color:#F7F1E5;"></div>
+    <a href="#"
+       class="inline-flex items-center justify-center px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors shadow-sm"
+       style="background-color:#162447; color:#F7F1E5;"
+       onmouseover="this.style.backgroundColor='#1e3060';"
+       onmouseout="this.style.backgroundColor='#162447';">
+        Ajukan restock
+    </a>
 </div>
 
-{{-- Stats Cards --}}
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-6">
+{{-- Stats Cards (4 kolom) --}}
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
 
-    <div class="bg-white rounded-2xl p-5 shadow-sm" style="border:1px solid #EDE5D4;">
-        <div class="flex items-center justify-between mb-3">
-            <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background-color:#ecfdf5;">
-                <svg class="w-6 h-6" fill="none" stroke="#059669" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                </svg>
-            </div>
-            <span class="text-xs px-2 py-0.5 rounded-full font-medium" style="background-color:#ecfdf5; color:#059669;">Total</span>
-        </div>
-        <p class="text-3xl font-bold" style="color:#162447;">{{ $stats['total_produk'] }}</p>
-        <p class="text-xs mt-1" style="color:#8a9bb5;">Total Produk</p>
+    <div class="bg-white rounded-2xl p-5" style="border:1px solid #EDE5D4;">
+        <p class="text-xs font-medium" style="color:#5a7398;">Jenis barang</p>
+        <p class="mt-2 text-2xl sm:text-3xl font-bold tabular-nums" style="color:#162447;">{{ $stats['total_produk'] }}</p>
+        <p class="mt-1.5 text-xs" style="color:#8a9bb5;">dalam {{ $stats['total_kategori'] }} kategori</p>
     </div>
 
-    <div class="bg-white rounded-2xl p-5 shadow-sm" style="border:1px solid #EDE5D4;">
-        <div class="flex items-center justify-between mb-3">
-            <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background-color:#fffbeb;">
-                <svg class="w-6 h-6" fill="none" stroke="#d97706" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
-            </div>
-            <span class="text-xs px-2 py-0.5 rounded-full font-medium" style="background-color:#fffbeb; color:#d97706;">Warning</span>
-        </div>
-        <p class="text-3xl font-bold" style="color:#d97706;">{{ $stats['stok_menipis'] }}</p>
-        <p class="text-xs mt-1" style="color:#8a9bb5;">Stok Menipis</p>
+    <div class="bg-white rounded-2xl p-5" style="border:1px solid #EDE5D4;">
+        <p class="text-xs font-medium" style="color:#5a7398;">Stok menipis</p>
+        <p class="mt-2 text-2xl sm:text-3xl font-bold tabular-nums" style="color:#b91c1c;">{{ $stats['stok_menipis'] }} barang</p>
+        <p class="mt-1.5 text-xs" style="color:#8a9bb5;">perlu diperhatikan</p>
     </div>
 
-    <div class="bg-white rounded-2xl p-5 shadow-sm" style="border:1px solid #EDE5D4;">
-        <div class="flex items-center justify-between mb-3">
-            <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background-color:#fef2f2;">
-                <svg class="w-6 h-6" fill="none" stroke="#dc2626" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
-                </svg>
-            </div>
-            <span class="text-xs px-2 py-0.5 rounded-full font-medium" style="background-color:#fef2f2; color:#dc2626;">Habis</span>
-        </div>
-        <p class="text-3xl font-bold" style="color:#dc2626;">{{ $stats['stok_habis'] }}</p>
-        <p class="text-xs mt-1" style="color:#8a9bb5;">Stok Habis</p>
+    <div class="bg-white rounded-2xl p-5" style="border:1px solid #EDE5D4;">
+        <p class="text-xs font-medium" style="color:#5a7398;">Stok habis</p>
+        <p class="mt-2 text-2xl sm:text-3xl font-bold tabular-nums" style="color:#b91c1c;">{{ $stats['stok_habis'] }} barang</p>
+        <p class="mt-1.5 text-xs" style="color:#8a9bb5;">stok sama dengan nol</p>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5" style="border:1px solid #EDE5D4;">
+        <p class="text-xs font-medium" style="color:#5a7398;">Pengajuan restock aktif</p>
+        <p class="mt-2 text-2xl sm:text-3xl font-bold tabular-nums" style="color:#162447;">{{ $stats['restock_aktif'] }}</p>
+        <p class="mt-1.5 text-xs" style="color:#8a9bb5;">0 diajukan, 0 diproses</p>
     </div>
 
 </div>
 
-{{-- Aksi Cepat --}}
-<div class="bg-white rounded-2xl shadow-sm" style="border:1px solid #EDE5D4;">
-    <div class="px-5 py-4" style="border-bottom:1px solid #EDE5D4;">
-        <h3 class="text-sm font-semibold" style="color:#162447;">Akses Cepat</h3>
+{{-- Main Grid: Barang yang perlu perhatian (2/3) & Pengajuan saya (1/3) --}}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+    {{-- Barang yang perlu perhatian --}}
+    <div class="lg:col-span-2 bg-white rounded-2xl p-5" style="border:1px solid #EDE5D4;">
+        <h2 class="text-base font-semibold mb-3" style="color:#162447;">Barang yang perlu perhatian</h2>
+
+        {{-- Legenda indikator --}}
+        <div class="flex flex-wrap gap-2 mb-4 text-xs font-medium">
+            <span class="px-2.5 py-1 rounded-full" style="background-color:#fee2e2; color:#991b1b;">
+                Merah: 5 atau kurang
+            </span>
+            <span class="px-2.5 py-1 rounded-full" style="background-color:#fef3c7; color:#92400e;">
+                Kuning: 6 sampai 20
+            </span>
+            <span class="px-2.5 py-1 rounded-full" style="background-color:#dcfce7; color:#166534;">
+                Hijau: lebih dari 20
+            </span>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-left text-xs" style="color:#8a9bb5; border-bottom:1px solid #EDE5D4;">
+                        <th class="pb-2.5 font-medium">Barang</th>
+                        <th class="pb-2.5 font-medium">Kategori</th>
+                        <th class="pb-2.5 font-medium text-center">Stok</th>
+                        <th class="pb-2.5 font-medium text-center">Indikator</th>
+                        <th class="pb-2.5 font-medium text-right">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y" style="border-color:#F7F1E5;">
+                    @forelse($barangPerhatian as $barang)
+                        @php($stok = (int) $barang->stok)
+                        <tr>
+                            <td class="py-3 pr-3 font-semibold" style="color:#162447;">{{ $barang->nama_barang }}</td>
+                            <td class="py-3 pr-3" style="color:#5a7398;">{{ $barang->kategori->nama ?? '-' }}</td>
+                            <td class="py-3 px-2 text-center font-bold tabular-nums" style="color:#162447;">{{ $stok }}</td>
+                            <td class="py-3 px-2 text-center">
+                                @if($stok <= 0)
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-medium" style="background-color:#fee2e2; color:#991b1b;">Habis</span>
+                                @elseif($stok <= 5)
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-medium" style="background-color:#fee2e2; color:#991b1b;">Menipis</span>
+                                @else
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-medium" style="background-color:#fef3c7; color:#92400e;">Sedang</span>
+                                @endif
+                            </td>
+                            <td class="py-3 pl-2 text-right">
+                                <a href="{{ Route::has('inventaris.barang_masuk.create') ? route('inventaris.barang_masuk.create') : '#' }}"
+                                   class="text-xs font-semibold underline" style="color:#162447;">
+                                    Ajukan restock
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="py-8 text-center text-sm" style="color:#8a9bb5;">
+                                Semua stok barang dalam kondisi aman.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
-    <div class="p-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
-        @php
-$menus = [
-    ['icon'=>'M12 6v6m0 0v6m0-6h6m-6 0H6','label'=>'Tambah Barang','desc'=>'Input produk baru','bg'=>'#F7F1E5','hover'=>'#EDE5D4',
-     'url'=> Route::has('inventaris.barang.create') ? route('inventaris.barang.create') : '#'],
-    ['icon'=>'M4 6h16M4 10h16M4 14h16M4 18h16','label'=>'Daftar Barang','desc'=>'Lihat semua produk','bg'=>'#ecfdf5','hover'=>'#d1fae5',
-     'url'=> Route::has('inventaris.barang.index') ? route('inventaris.barang.index') : '#'],
-    ['icon'=>'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z','label'=>'Laporan Stok','desc'=>'Cetak laporan','bg'=>'#fffbeb','hover'=>'#fef3c7'],
-];
-@endphp
-        @foreach($menus as $menu)
-        <a href="{{ $menu['url'] ?? '#' }}"
-           class="flex items-center p-4 rounded-xl transition-all duration-150"
-           style="background-color:{{ $menu['bg'] }};"
-           onmouseover="this.style.backgroundColor='{{ $menu['hover'] }}';"
-           onmouseout="this.style.backgroundColor='{{ $menu['bg'] }}';">
-            <div class="w-10 h-10 rounded-lg flex items-center justify-center mr-3 shrink-0"
-                 style="background-color:rgba(22,36,71,0.1);">
-                <svg class="w-5 h-5" fill="none" stroke="#162447" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $menu['icon'] }}"/>
-                </svg>
-            </div>
-            <div>
-                <p class="text-sm font-semibold" style="color:#162447;">{{ $menu['label'] }}</p>
-                <p class="text-xs" style="color:#8a9bb5;">{{ $menu['desc'] }}</p>
-            </div>
-        </a>
-        @endforeach
+
+    {{-- Pengajuan saya --}}
+    <div class="bg-white rounded-2xl p-5 flex flex-col" style="border:1px solid #EDE5D4;">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-semibold" style="color:#162447;">Pengajuan saya</h2>
+            <a href="#" class="text-xs font-medium underline" style="color:#162447;">Lihat semua</a>
+        </div>
+
+        <div class="divide-y flex-1" style="border-color:#F7F1E5;">
+            @forelse($pengajuanSaya as $pengajuan)
+                <div class="py-3 flex items-start justify-between gap-2">
+                    <div>
+                        <p class="text-sm font-semibold" style="color:#162447;">{{ $pengajuan->nama_barang }}</p>
+                        <p class="text-xs mt-0.5" style="color:#8a9bb5;">{{ $pengajuan->jumlah }} &middot; {{ $pengajuan->tanggal }}</p>
+                    </div>
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-medium shrink-0"
+                          style="background-color:#eff6ff; color:#1d4ed8;">
+                        {{ $pengajuan->status }}
+                    </span>
+                </div>
+            @empty
+                <div class="py-10 text-center text-sm" style="color:#8a9bb5;">
+                    Belum ada pengajuan restock.
+                </div>
+            @endforelse
+        </div>
     </div>
+
 </div>
 @endsection

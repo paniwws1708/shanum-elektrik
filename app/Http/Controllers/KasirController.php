@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Barang;
 use App\Models\Kategori;
 use App\Models\Transaksi;
@@ -30,6 +31,7 @@ class KasirController extends Controller
             ->map(function ($b) {
                 // Sertakan status_stok (aman/menipis) agar tampil di badge
                 $b->status_stok_label = $b->status_stok;
+
                 return $b;
             });
 
@@ -46,22 +48,22 @@ class KasirController extends Controller
     {
         // --- Validasi input dari form ---
         $request->validate([
-            'items'          => 'required|array|min:1',
+            'items' => 'required|array|min:1',
             'items.*.barang_id' => 'required|exists:barangs,id',
-            'items.*.qty'    => 'required|integer|min:1',
-            'bayar'          => 'required|numeric|min:0',
+            'items.*.qty' => 'required|integer|min:1',
+            'bayar' => 'required|numeric|min:0',
         ], [
-            'items.required'           => 'Keranjang tidak boleh kosong.',
-            'items.min'                => 'Keranjang tidak boleh kosong.',
+            'items.required' => 'Keranjang tidak boleh kosong.',
+            'items.min' => 'Keranjang tidak boleh kosong.',
             'items.*.barang_id.exists' => 'Barang tidak ditemukan.',
-            'items.*.qty.min'          => 'Jumlah minimal 1.',
-            'bayar.required'           => 'Masukkan jumlah uang pembayaran.',
+            'items.*.qty.min' => 'Jumlah minimal 1.',
+            'bayar.required' => 'Masukkan jumlah uang pembayaran.',
         ]);
 
         // --- Proses di dalam DB::transaction agar atomik ---
         $transaksi = DB::transaction(function () use ($request, $stokService) {
 
-            $items     = $request->input('items');
+            $items = $request->input('items');
             $noInvoice = Transaksi::buatNoInvoice();
             $totalHarga = 0;
             $detailData = [];
@@ -81,11 +83,11 @@ class KasirController extends Controller
                 $totalHarga += $subtotal;
 
                 $detailData[] = [
-                    'barang'       => $barang,
-                    'nama_barang'  => $barang->nama_barang,
+                    'barang' => $barang,
+                    'nama_barang' => $barang->nama_barang,
                     'harga_satuan' => $barang->harga_jual,
-                    'jumlah'       => $item['qty'],
-                    'subtotal'     => $subtotal,
+                    'jumlah' => $item['qty'],
+                    'subtotal' => $subtotal,
                 ];
             }
 
@@ -93,27 +95,27 @@ class KasirController extends Controller
             $bayar = (float) $request->input('bayar');
             if ($bayar < $totalHarga) {
                 throw ValidationException::withMessages([
-                    'bayar' => 'Uang pembayaran kurang. Total: Rp ' . number_format($totalHarga, 0, ',', '.'),
+                    'bayar' => 'Uang pembayaran kurang. Total: Rp '.number_format($totalHarga, 0, ',', '.'),
                 ]);
             }
 
             // Simpan transaksi
             $transaksi = Transaksi::create([
-                'no_invoice'  => $noInvoice,
-                'user_id'     => Auth::id(),
+                'no_invoice' => $noInvoice,
+                'user_id' => Auth::id(),
                 'total_harga' => $totalHarga,
-                'bayar'       => $bayar,
-                'kembalian'   => $bayar - $totalHarga,
+                'bayar' => $bayar,
+                'kembalian' => $bayar - $totalHarga,
             ]);
 
             // Simpan detail & kurangi stok via StokService
             foreach ($detailData as $d) {
                 $transaksi->details()->create([
-                    'barang_id'    => $d['barang']->id,
-                    'nama_barang'  => $d['nama_barang'],
+                    'barang_id' => $d['barang']->id,
+                    'nama_barang' => $d['nama_barang'],
                     'harga_satuan' => $d['harga_satuan'],
-                    'jumlah'       => $d['jumlah'],
-                    'subtotal'     => $d['subtotal'],
+                    'jumlah' => $d['jumlah'],
+                    'subtotal' => $d['subtotal'],
                 ]);
 
                 // Kurangi stok — StokService akan throw Exception jika negatif
@@ -129,9 +131,15 @@ class KasirController extends Controller
             return $transaksi;
         });
 
+        ActivityLog::catat(
+            'Transaksi',
+            'create',
+            "Membuat transaksi {$transaksi->no_invoice} senilai Rp ".number_format($transaksi->total_harga, 0, ',', '.')
+        );
+
         return redirect()
             ->route('kasir.show', $transaksi)
-            ->with('success', "Transaksi {$transaksi->no_invoice} berhasil! Kembalian: Rp " . number_format($transaksi->kembalian, 0, ',', '.'));
+            ->with('success', "Transaksi {$transaksi->no_invoice} berhasil! Kembalian: Rp ".number_format($transaksi->kembalian, 0, ',', '.'));
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -147,9 +155,14 @@ class KasirController extends Controller
             $query->where('user_id', Auth::id());
         }
 
-        // Pencarian berdasarkan no_invoice
+        // Pencarian berdasarkan no_invoice atau nama barang
         if ($search = $request->input('cari')) {
-            $query->where('no_invoice', 'like', "%{$search}%");
+            $query->where(function ($q) use ($search) {
+                $q->where('no_invoice', 'like', "%{$search}%")
+                    ->orWhereHas('details', function ($dq) use ($search) {
+                        $dq->where('nama_barang', 'like', "%{$search}%");
+                    });
+            });
         }
 
         // Filter berdasarkan kategori barang (lewat relasi details.barang)
@@ -159,8 +172,16 @@ class KasirController extends Controller
             });
         }
 
+        // Filter rentang tanggal
+        if ($dariTanggal = $request->input('dari_tanggal')) {
+            $query->whereDate('created_at', '>=', $dariTanggal);
+        }
+        if ($sampaiTanggal = $request->input('sampai_tanggal')) {
+            $query->whereDate('created_at', '<=', $sampaiTanggal);
+        }
+
         $transaksis = $query->paginate(10)->withQueryString();
-        $kategoris  = Kategori::orderBy('nama')->get();
+        $kategoris = Kategori::orderBy('nama')->get();
 
         return view('kasir.riwayat', compact('transaksis', 'kategoris'));
     }

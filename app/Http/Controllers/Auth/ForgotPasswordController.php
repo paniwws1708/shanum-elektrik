@@ -33,7 +33,7 @@ class ForgotPasswordController extends Controller
         // Check if user exists
         $user = User::where('email', $request->email)->first();
 
-        if (!$user) {
+        if (! $user) {
             return back()->withErrors([
                 'email' => 'Email tidak ditemukan dalam sistem.',
             ])->withInput();
@@ -57,7 +57,7 @@ class ForgotPasswordController extends Controller
             'email' => $request->email,
         ], function ($message) use ($request) {
             $message->to($request->email)
-                    ->subject('Reset Password - Shanum Elektrik');
+                ->subject('Reset Password - Shanum Elektrik');
         });
 
         return back()->with('success', 'Link reset password telah dikirim ke email Anda. Silakan cek inbox atau folder spam.');
@@ -90,7 +90,7 @@ class ForgotPasswordController extends Controller
             ->where('email', $request->email)
             ->first();
 
-        if (!$record || !Hash::check($request->token, $record->token)) {
+        if (! $record || ! Hash::check($request->token, $record->token)) {
             return back()->withErrors([
                 'email' => 'Token reset password tidak valid atau sudah kadaluarsa.',
             ]);
@@ -99,6 +99,7 @@ class ForgotPasswordController extends Controller
         // Check if token is expired (60 minutes)
         if (now()->diffInMinutes($record->created_at) > 60) {
             DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
             return back()->withErrors([
                 'email' => 'Token reset password sudah kadaluarsa. Silakan request ulang.',
             ]);
@@ -107,7 +108,7 @@ class ForgotPasswordController extends Controller
         // Update password
         $user = User::where('email', $request->email)->first();
 
-        if (!$user) {
+        if (! $user) {
             return back()->withErrors([
                 'email' => 'Email tidak ditemukan.',
             ]);
@@ -147,7 +148,7 @@ class ForgotPasswordController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user) {
+        if (! $user) {
             return back()->withErrors([
                 'email' => 'Email tidak ditemukan dalam sistem.',
             ])->withInput();

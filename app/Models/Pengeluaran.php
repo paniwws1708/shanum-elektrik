@@ -9,18 +9,18 @@ class Pengeluaran extends Model
     // Pilihan kategori pengeluaran. Mau tambah kategori? Cukup tambah baris di sini.
     public const KATEGORI = [
         'pembelian_stok' => 'Pembelian Stok',
-        'gaji'           => 'Gaji Karyawan',
-        'listrik_air'    => 'Listrik & Air',
-        'sewa'           => 'Sewa Tempat',
-        'operasional'    => 'Operasional',
-        'lainnya'        => 'Lainnya',
+        'gaji' => 'Gaji Karyawan',
+        'listrik_air' => 'Listrik & Air',
+        'sewa' => 'Sewa Tempat',
+        'operasional' => 'Operasional',
+        'lainnya' => 'Lainnya',
     ];
 
     protected $fillable = ['user_id', 'tanggal', 'kategori', 'jumlah', 'keterangan'];
 
     protected $casts = [
         'tanggal' => 'date',
-        'jumlah'  => 'decimal:2',
+        'jumlah' => 'decimal:2',
     ];
 
     public function user()
